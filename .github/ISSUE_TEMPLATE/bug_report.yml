@@ -1,0 +1,70 @@
+name: Bug report
+description: Report a defect in the extractor, CLI, packaging, or agent skill
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. **Security issues must not be filed here.** If the
+        bug is about safely handling untrusted input or could help an attacker,
+        report it privately per [SECURITY.md](../../SECURITY.md) instead.
+  - type: input
+    id: version
+    attributes:
+      label: Version / commit
+      description: Output of `unmix-repomix --version`, or the git commit/PR if built from source.
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: Platform
+      description: OS (macOS/Linux/Windows) and version, and Python version (e.g. 3.12.7).
+    validations:
+      required: true
+  - type: textarea
+    id: example
+    attributes:
+      label: Reproducible synthetic example
+      description: |
+        A minimal, **synthetic** (non-confidential) Repomix export and the exact
+        command that triggers the bug. Do not paste real input/output snapshots.
+        Use the same style as the fixtures in `tests/fixtures/`.
+      placeholder: |
+        `unmix-repomix sample.md ./out --dry-run`
+        content of sample.md …
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should have happened, and what the reconstructed tree should have contained.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What actually happened, including any error message and exit code.
+    validations:
+      required: true
+  - type: textarea
+    id: safety
+    attributes:
+      label: Safety / privacy reminder
+      value: |
+        Confirm you have not included confidential data, real archives, private
+        paths, or credentials, and that you did not execute any reconstructed
+        output while reproducing this. Reconstructed trees are untrusted data.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I used a synthetic (non-confidential) reproduction case
+        - label: I did not execute or run anything from a reconstructed tree
+        - label: I reviewed that no secrets/private data are included in this report
+    validations:
+      required: true
