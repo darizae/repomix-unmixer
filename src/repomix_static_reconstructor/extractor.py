@@ -20,6 +20,22 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath, PureWindowsPath
 
+try:  # Package metadata is unavailable when running as a loose script.
+    from importlib.metadata import PackageNotFoundError, version as _package_version
+except ImportError:  # pragma: no cover - Python < 3.10 only
+    _package_version = None
+    PackageNotFoundError = Exception  # type: ignore[assignment, misc]
+
+
+def distribution_version() -> str:
+    """Return the installed distribution version, or a fallback."""
+    if _package_version is not None:
+        try:
+            return _package_version("repomix-static-reconstructor")
+        except PackageNotFoundError:
+            pass
+    return "0.0.0+unknown"
+
 
 DEFAULT_MAX_INPUT_MIB = 512
 DEFAULT_MAX_FILE_MIB = 128
@@ -704,6 +720,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("output_directory", nargs="?", default="./extracted",
                         help="New output directory (default: ./extracted)")
     parser.add_argument("--dry-run", action="store_true", help="Validate without writing")
+    parser.add_argument("--version", action="version", version=distribution_version())
     parser.add_argument("--max-input-mib", type=positive_float, default=DEFAULT_MAX_INPUT_MIB)
     parser.add_argument("--max-file-mib", type=positive_float, default=DEFAULT_MAX_FILE_MIB)
     parser.add_argument("--max-total-mib", type=positive_float, default=DEFAULT_MAX_TOTAL_MIB)

@@ -7,14 +7,15 @@ must be byte-identical to the parsed export content. See docs/EXCLUSIONS.md.
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 import tempfile
 import unittest
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-from unmix_repomix import (  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+from repomix_static_reconstructor.extractor import (  # noqa: E402
     UnmixError,
     exclusion_category,
     unmix_repomix,
@@ -203,11 +204,14 @@ class ExclusionExtractionTests(unittest.TestCase):
 
     def test_cli_reports_exclusion_category(self):
         self.input.write_text(markdown([(".mcp.json", "{}"), ("keep.txt", "y")]), encoding="utf-8")
-        script = Path(__file__).resolve().parents[1] / "scripts" / "unmix_repomix.py"
+        src = Path(__file__).resolve().parents[1] / "src"
+        env = dict(os.environ)
+        env["PYTHONPATH"] = str(src) + os.pathsep + env.get("PYTHONPATH", "")
         completed = subprocess.run(
-            [sys.executable, str(script), str(self.input), str(self.output), "--dry-run"],
+            [sys.executable, "-m", "repomix_static_reconstructor.cli", str(self.input), str(self.output), "--dry-run"],
             capture_output=True,
             text=True,
+            env=env,
         )
         self.assertEqual(completed.returncode, 0, completed.stderr)
         self.assertIn(".mcp.json [agent-config]", completed.stdout)
