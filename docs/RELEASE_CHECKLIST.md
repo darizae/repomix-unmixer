@@ -31,8 +31,9 @@ See `docs/BACKLOG.md` for task IDs. GitHub remote: `darizae/repomix-static-recon
 - [ ] Verify logo/name aren't confusingly similar to Repomix or other brands; indicate independent project
 - [x] README wordmark, concise feature set, CLI commands and safety links (P1-03).
 - [ ] Authentic demo GIF/capture and independent README visual review (deferred).
-- [ ] Branded docs website or lightweight landing page and social-preview image
-- [ ] Accessible dark/light variants, alt text, responsive layout, consistent iconography
+- [x] Branded local documentation landing page, original social-card SVG and extraction diagram (P1-04).
+- [ ] Export hosted social-card PNG, upload GitHub preview and approve deployment (deferred).
+- [ ] Independent visual/accessibility check (responsive layout, dark/light wordmarks, alt text, contrast) on actual browser/device; source assets and semantic HTML are present (deferred).
 
 ## Quality and publication
 - [x] CI quality gates: lint, types, tests across supported OS/Python versions, build/install checks — PR #8 completed successfully with all 14 jobs including Python 3.10 on Windows.
