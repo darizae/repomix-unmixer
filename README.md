@@ -92,4 +92,4 @@ Read [Security](SECURITY.md), [static inspection](docs/STATIC_INSPECTION.md), [p
 
 [Docs preview](docs/site/README.md) · [FAQ](docs/FAQ.md) · [Agent Skill](skills/repomix-unmixer/SKILL.md) · [Contributing](CONTRIBUTING.md) · [Backlog](docs/BACKLOG.md) · [Release checklist](docs/RELEASE_CHECKLIST.md)
 
-**Status:** private pre-release. No public license has been selected and no PyPI release is claimed.
+**Status:** private pre-release, [MIT-licensed](LICENSE). No PyPI release is claimed. Public release requires completion of the remaining security and provenance checks.

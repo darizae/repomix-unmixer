@@ -3,11 +3,13 @@
 See `docs/BACKLOG.md` for task IDs. GitHub remote: `darizae/repomix-unmixer` (**private**). Public visibility requires explicit maintainer approval.
 
 ## Repository hygiene
-- [ ] Rights and ownership approval; choose and include a LICENSE
+- [x] Select and include an MIT license — maintainer authorized MIT on 2026-11-19; root `LICENSE` and package metadata added.
+- [ ] Complete independent rights/provenance review (including third-party contributions/assets) before publication; license selection alone does not establish ownership.
+- [ ] Complete approved Git author/committer metadata history cleanup, re-audit all resulting refs, and assess GitHub-hosted cached/PR objects before public release (deferred to local maintainer agent).
 - [x] Audit code, documentation and assets for credentials, personal information, and unintended files — P0-08 (2026-11-19): all 64 commits (reachable + dangling) and 141 blobs scanned for keys, tokens, emails, URLs, private IPs, hostnames and high-entropy strings; none found. External URLs are intentional comparisons in `docs/BRAND.md`; binary assets carry no embedded metadata
 - [x] Run local secret scanning and independently inspect Git's full staged diff and history — P0-08 (2026-11-19): regex/entropy scan across full history, reachable and dangling; removed bootstrap/handoff files carry no secrets. No local secret-scanner CLI installed (gitleaks/trufflehog/detect-secrets deferred); GitHub secret scanning limited by account plan
 - [x] Confirm input and output snapshots are untracked; run `git ls-files` and `git status` — P0-08 (2026-11-19): `repomix-files/` holds only `.gitkeep`; no input/output snapshots tracked; working tree clean; `origin/main` in sync
-- [ ] Protect default branch and verify GitHub security settings — `SECURITY.md` and `CONTRIBUTING.md` exist. Branch protection and the private-vulnerability-reporting toggle remain deferred; secret scanning is limited by the account plan.
+- [ ] Protect `main` after the approved history rewrite; verify actual GitHub ruleset/branch-protection settings. The connected GitHub integration returned 403 on this API. Private-vulnerability-reporting toggle and secret scanning availability also require account-level review.
 
 ## Parser and security
 - [x] Repomix-generated fixtures for Markdown/XML/JSON across versions, CRLF/BOM, escapes, malformed content — P0-10: Repomix 1.19.0 fixtures, byte-identical with 1.17.0/1.18.1; see `docs/PARSER_COMPATIBILITY.md`
