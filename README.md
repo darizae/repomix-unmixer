@@ -8,11 +8,11 @@ This is an early-stage, private-first tool. It is **not** a public release, a co
 
 - **Inspect, don't execute:** unpack exported source for reading, searching, comparison, and architectural review. Do not build/test/run the *reconstructed* project.
 - **Filesystem guardrails:** reject ambiguous, absolute, traversal and Windows-special paths; detect case-insensitive path collisions and file/directory conflicts; reject existing output; enforce limits.
-- **Conservative exclusions:** skip a small generic set of auto-activating agent configuration, local IDE metadata, and credential configuration files (`.mcp.json`, `.env`, `.claude/`, etc.). The skip list is not a guarantee that sensitive content is absent.
+- **Conservative exclusions:** omit a small, documented set of auto-activating agent/IDE configuration, credential-bearing environment files, `.git/`, and OS metadata from reconstructed output (`.mcp.json`, `.env`/`.env.*` except templates, `.claude/`, `.vscode/`, etc.). Retained file contents are never modified. This is not a secret scanner and not a guarantee: see [`docs/EXCLUSIONS.md`](docs/EXCLUSIONS.md).
 - **Batch workflow:** unpack multiple `.md` exports to separate folders and produce a report.
 - **No network:** the extractor uses Python's standard library and does not fetch dependencies or execute extracted repository commands.
 
-**Crucial:** The extractor preserves the parsed filenames and text provided by Repomix (subject to documented parsing and file exclusions). Outputs may contain confidential data. **Review inputs and reconstructed outputs separately before sharing or publishing.**
+**Crucial:** The extractor preserves the parsed filenames and text provided by Repomix (subject to documented parsing and file exclusions in [`docs/EXCLUSIONS.md`](docs/EXCLUSIONS.md)). Outputs may contain confidential data. **Review inputs and reconstructed outputs separately before sharing or publishing.**
 
 ## Quick start (Python 3.10+)
 
