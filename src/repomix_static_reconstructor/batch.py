@@ -12,7 +12,11 @@ import re
 import sys
 from pathlib import Path
 
-from repomix_static_reconstructor.extractor import UnmixError, UnmixResult, unmix_repomix
+from repomix_static_reconstructor.extractor import (
+    UnmixError,
+    UnmixResult,
+    unmix_repomix,
+)
 
 
 BUNDLE_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -32,10 +36,14 @@ def safe_output_name(path: Path) -> str:
 
 
 def discover_markdown_files(input_dir: Path) -> list[Path]:
-    return sorted(p for p in input_dir.iterdir() if p.is_file() and p.suffix.lower() == ".md")
+    return sorted(
+        p for p in input_dir.iterdir() if p.is_file() and p.suffix.lower() == ".md"
+    )
 
 
-def write_report(output_root: Path, rows: list[tuple[Path, Path, UnmixResult]], dry_run: bool) -> None:
+def write_report(
+    output_root: Path, rows: list[tuple[Path, Path, UnmixResult]], dry_run: bool
+) -> None:
     if dry_run:
         return
     report = output_root / "RECONSTRUCTION_REPORT.md"
@@ -69,7 +77,9 @@ def write_report(output_root: Path, rows: list[tuple[Path, Path, UnmixResult]], 
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Statically reconstruct all Repomix .md files in repomix-files/.")
+    parser = argparse.ArgumentParser(
+        description="Statically reconstruct all Repomix .md files in repomix-files/."
+    )
     parser.add_argument("--input-dir", type=Path, default=DEFAULT_INPUT_DIR)
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
     parser.add_argument("--dry-run", action="store_true")
@@ -81,7 +91,10 @@ def main(argv: list[str] | None = None) -> int:
     input_dir = args.input_dir.resolve()
     raw_output_root = args.output_dir.expanduser()
     if raw_output_root.is_symlink():
-        print(f"Error: output root must not be a symlink: {raw_output_root}", file=sys.stderr)
+        print(
+            f"Error: output root must not be a symlink: {raw_output_root}",
+            file=sys.stderr,
+        )
         return 1
     output_root = raw_output_root.resolve(strict=False)
 
@@ -96,11 +109,17 @@ def main(argv: list[str] | None = None) -> int:
 
     # No deletion or replacement of existing output trees.
     if output_root.is_symlink() or (output_root.exists() and not output_root.is_dir()):
-        print(f"Error: output root is not a regular directory: {output_root}", file=sys.stderr)
+        print(
+            f"Error: output root is not a regular directory: {output_root}",
+            file=sys.stderr,
+        )
         return 1
     report = output_root / "RECONSTRUCTION_REPORT.md"
     if report.exists() or report.is_symlink():
-        print(f"Error: reconstruction report already exists (will not replace): {report}", file=sys.stderr)
+        print(
+            f"Error: reconstruction report already exists (will not replace): {report}",
+            file=sys.stderr,
+        )
         return 1
     if not args.dry_run:
         output_root.mkdir(parents=True, exist_ok=True)
@@ -125,13 +144,13 @@ def main(argv: list[str] | None = None) -> int:
             print(f"Error reconstructing {source.name}: {exc}", file=sys.stderr)
             return 1
 
-        print(
-            f"Files: {len(result.extracted)} | skipped: {len(result.skipped)}"
-        )
+        print(f"Files: {len(result.extracted)} | skipped: {len(result.skipped)}")
         rows.append((source, target, result))
 
     write_report(output_root, rows, args.dry_run)
-    print("\nDone. Reconstructed repositories are STATIC EXAMPLES ONLY; do not execute them.")
+    print(
+        "\nDone. Reconstructed repositories are STATIC EXAMPLES ONLY; do not execute them."
+    )
     return 0
 
 
