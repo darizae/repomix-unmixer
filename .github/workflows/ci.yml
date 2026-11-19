@@ -51,6 +51,27 @@ jobs:
       - run: pip install mypy==1.19.1
       - run: mypy src/repomix_static_reconstructor
 
+  skill:
+    name: Agent Skills validation
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install official skills-ref validator
+        run: pip install "skills-ref @ git+https://github.com/agentskills/agentskills.git#subdirectory=skills-ref"
+      - name: Run official validator
+        run: skills-ref validate skills/repomix-static-reconstructor
+      - name: Run skill structure tests
+        run: |
+          pip install --quiet skills-ref
+          python -m unittest tests.test_skill -v
+
   tests:
     name: Tests (py${{ matrix.python }} / ${{ matrix.os }})
     runs-on: ${{ matrix.os }}
@@ -84,7 +105,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    needs: [lint, typecheck, tests]
+    needs: [lint, typecheck, skill, tests]
     steps:
       - uses: actions/checkout@v4
         with:

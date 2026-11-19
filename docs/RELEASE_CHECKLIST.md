@@ -18,9 +18,9 @@ See `docs/BACKLOG.md` for task IDs. GitHub target: `darizae/repomix-static-recon
 
 ## Packaging and agent integrations
 - [ ] Define stable product name, CLI name, package name and repository slug; verify availability
-- [ ] Create `pyproject.toml`, `src/` layout, console entrypoint, version command, wheel/sdist
-- [ ] Clean environment installation, uninstall, and pinned supported Python-version tests
-- [ ] Portable `SKILL.md` validated against Agent Skills spec; run actual host smoke tests
+- [x] Create `pyproject.toml`, `src/` layout, console entrypoint, version command, wheel/sdist — P0-13: setuptools src/ layout, `unmix-repomix`/`reconstruct-all` entry points, `--version`, wheel+sdist build with `twine check` PASSED
+- [x] Clean environment installation, uninstall, and pinned supported Python-version tests — P0-13/P0-14: clean-venv install (wheel and sdist), single-export + batch smoke, uninstall verified locally; CI matrix runs Python 3.10–3.13 on ubuntu/macos/windows with the full test suite
+- [x] Portable `SKILL.md` validated against Agent Skills spec; run actual host smoke tests — P0-15: `skills/repomix-static-reconstructor/SKILL.md` passes official `skills-ref` validator; CI job runs it on every push; in-suite structure tests. Host smoke tests (Claude Code, Codex, Cursor, Gemini CLI, OpenCode) still pending as P1-08.
 - [ ] Only after validation, add targeted wrappers for Claude Code, Codex, Cursor, Gemini CLI, OpenCode
 - [ ] Document installation, offline operation, limitations, screenshots, comparison, and FAQ
 
