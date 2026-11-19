@@ -27,7 +27,7 @@ If script validation fails, **stop** and report the specific reason. Do not impr
 
 For a later instruction such as **“Tackle P0-09”**, locate that ID in `docs/BACKLOG.md`, satisfy its definition of done, add or run tests, update the task's status and notes in the backlog, commit code and docs, and report evidence and blockers. Push a feature branch and open a private PR where authorized; otherwise explain why.
 
-Start with P0 security, parser correctness and packaging work before public branding or distribution. Branding/logo/README/website tasks are already tracked under P1. Preserve parsed names and file contents; follow the documented exclusion policy. No public release, license selection on behalf of the maintainer, or visibility change without explicit approval.
+Start with P0 security, parser correctness and packaging work before public branding or distribution. Branding/logo/README/website tasks are already tracked under P1. Preserve parsed names and file contents; follow the documented exclusion policy in `docs/EXCLUSIONS.md`. No public release, license selection on behalf of the maintainer, or visibility change without explicit approval.
 
 ## Final setup verification
 

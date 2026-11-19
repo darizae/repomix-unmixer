@@ -60,7 +60,7 @@ def write_report(output_root: Path, rows: list[tuple[Path, Path, UnmixResult]], 
             "- These outputs are static example code only.",
             "- Do not run package managers, scripts, builds, tests, containers, CI, MCP, or applications inside them.",
             "- Paths and text are not rewritten; original sensitive content can remain.",
-            "- Selected agent configuration, credential config, and local workspace metadata paths were excluded.",
+            "- Safety exclusions omitted agent/IDE configuration, credential-bearing environment files, .git/, and OS metadata. They affect only this output, not the original export.",
             "",
         ]
     )
