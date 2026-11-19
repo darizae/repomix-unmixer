@@ -4,9 +4,9 @@ See `docs/BACKLOG.md` for task IDs. GitHub remote: `darizae/repomix-static-recon
 
 ## Repository hygiene
 - [ ] Rights and ownership approval; choose and include a LICENSE
-- [ ] Audit code, documentation and assets for credentials, personal information, and unintended files
-- [ ] Run local secret scanning and independently inspect Git's full staged diff and history
-- [ ] Confirm input and output snapshots are untracked; run `git ls-files` and `git status`
+- [x] Audit code, documentation and assets for credentials, personal information, and unintended files — P0-08 (2026-11-19): all 64 commits (reachable + dangling) and 141 blobs scanned for keys, tokens, emails, URLs, private IPs, hostnames and high-entropy strings; none found. External URLs are intentional comparisons in `docs/BRAND.md`; binary assets carry no embedded metadata
+- [x] Run local secret scanning and independently inspect Git's full staged diff and history — P0-08 (2026-11-19): regex/entropy scan across full history, reachable and dangling; removed bootstrap/handoff files carry no secrets. No local secret-scanner CLI installed (gitleaks/trufflehog/detect-secrets deferred); GitHub secret scanning limited by account plan
+- [x] Confirm input and output snapshots are untracked; run `git ls-files` and `git status` — P0-08 (2026-11-19): `repomix-files/` holds only `.gitkeep`; no input/output snapshots tracked; working tree clean; `origin/main` in sync
 - [ ] Protect default branch and verify GitHub security settings — `SECURITY.md` and `CONTRIBUTING.md` exist. Branch protection and the private-vulnerability-reporting toggle remain deferred; secret scanning is limited by the account plan.
 
 ## Parser and security
