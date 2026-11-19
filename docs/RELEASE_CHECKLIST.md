@@ -41,8 +41,9 @@ See `docs/BACKLOG.md` for task IDs. GitHub remote: `darizae/repomix-unmixer` (**
 
 ## Quality and publication
 - [x] CI quality gates: lint, types, tests across supported OS/Python versions, build/install checks — PR #8 completed successfully with all 14 jobs including Python 3.10 on Windows.
-- [ ] **Best-effort release prep:** lightweight dependency maintenance and supply-chain documentation; no GitHub Actions runs. Provenance automation optional.
+- [x] **Best-effort release prep:** lightweight dependency maintenance and supply-chain documentation; no GitHub Actions runs — Phase D: `.github/dependabot.yml` (pip, low-dependency runtime), `docs/PUBLISHING.md`. Provenance automation optional.
 - [x] **P1-10** (2026-11-19): `CHANGELOG.md` (Keep a Changelog, v0.1.0 candidate); `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1, enforcement contact = maintainer GitHub `darizae`/SECURITY channel, no invented email); bug/feature issue forms + `config.yml` (parse OK, blank issues disabled, security routed to SECURITY.md); `pull_request_template.md`; `CONTRIBUTING.md` revised for local-validation/`[skip ci]`. All links exist.
-- [ ] **P0-17:** local artifacts, v0.1.0 notes, checksums; release/tag only when blocking gates pass (release plan Phase E).
+- [x] **P0-17 prep (Phase D, 2026-11-19):** PyPI `repomix-unmixer` name verified **unregistered**; `publish-pypi.yml` committed but **not executed** (Trusted Publishing, `pypi` environment, `id-token: write` only, gated to `v*` tags/dispatch); wheel+sdist `twine check` PASSED (packaging ≥24.2); sha256 checksums computed; Agent Skill distribution + install docs (`docs/PUBLISHING.md`, `docs/AGENT_INSTALL.md`). **Manual pending tasks recorded:** PyPI pending-publisher creation and account steps are interactive and remain a maintainer action.
+- [ ] **P0-17:** v0.1.0 release notes + checksum file; release/tag only when blocking gates pass and maintainer approves (release plan Phase E).
 - [ ] Test install instructions with a new contributor; obtain maintainer approval to make public
-- [ ] **Prepare now:** verified PyPI metadata, Trusted Publisher configuration and Agent Skills distribution guide; **actual upload/listing gated**. Website remains deferred.
+- [ ] **Actual upload/listing gated:** PyPI upload, Agent Skill directory submission, and public visibility remain **on hold** until the final gate (P0-17) and maintainer approval. Website remains deferred.

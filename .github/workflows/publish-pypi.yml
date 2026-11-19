@@ -1,0 +1,62 @@
+# PyPI publication workflow — repomix-unmixer
+#
+# Publication-ready but intentionally NOT executed in this release-prep phase.
+# Do not run or trigger this workflow until:
+#   1. all mandatory docs/RELEASE_CHECKLIST.md gates pass, and
+#   2. the maintainer explicitly approves a public release.
+#
+# Uses PyPI Trusted Publishing (OpenID Connect): no stored PyPI API token.
+# Gated to:
+#   - pushes of a v* release tag (the release process creates the tag), and
+#   - an explicit manual dispatch (workflow_dispatch) by the maintainer.
+# Pull requests and other branches can never trigger publication.
+# The `pypi` environment (required reviewers) preserves manual approval.
+
+name: Publish to PyPI
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+# Least privilege: the publish job needs an OIDC token (id-token: write) to
+# mint a short-lived PyPI credential, and read access to check out the tag.
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    # Manual approval gate. Configure required reviewers on this environment.
+    environment: pypi
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout the release tag
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build sdist and wheel
+        run: |
+          python -m pip install --upgrade build
+          python -m build
+
+      - name: Validate distribution metadata
+        run: |
+          python -m pip install --upgrade twine "packaging>=24.2"
+          twine check dist/*
+
+      - name: Publish to PyPI via Trusted Publishing
+        uses: pypa/gh-action-pypi-publish@release/v1
+
+      - name: Verify the published version is importable
+        run: |
+          python -m pip install --quiet --disable-pip-version-check repomix-unmixer==${GITHUB_REF_NAME#v}
+          python -m repomix_unmixer --version
+          unmix-repomix --version

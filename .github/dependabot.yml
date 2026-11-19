@@ -1,0 +1,17 @@
+# Dependabot version updates for the low-dependency, stdlib-only runtime.
+# Production code has no third-party runtime dependencies; this tracks only the
+# build/dev tooling declared in pyproject.toml.
+#
+# Note: dependabot PRs will not run CI while GitHub Actions quota is exhausted;
+# merge only after running the local checks in CONTRIBUTING.md.
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+    commit-message:
+      prefix: "chore(deps)"
