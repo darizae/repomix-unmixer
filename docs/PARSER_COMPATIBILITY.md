@@ -18,9 +18,9 @@ the task tracking in [`BACKLOG.md`](BACKLOG.md) (P0-10).
 ## Fidelity contract
 
 For every entry Repomix emits, the reconstructor writes the **exact parsed path and text**,
-subject only to the safety path checks and the exclusion list described in `README.md` and
-`SECURITY.md`. It does not reformat, re-indent, normalize line endings, or decode content that
-Repomix left encoded.
+subject only to the safety path checks and the exclusion policy described in
+[`EXCLUSIONS.md`](EXCLUSIONS.md). It does not reformat, re-indent, normalize line endings, or
+decode content that Repomix left encoded.
 
 This contract cannot restore information that Repomix itself removes:
 
@@ -103,11 +103,12 @@ Markdown file content containing `<repomix>` from being mistaken for XML.
 
 ## Exclusions are not a confidentiality guarantee
 
-The parser preserves what Repomix emits, but the writer then omits a small safety-based set of
-agent, IDE, and credential configuration paths. Those paths are listed in `README.md`,
-`SECURITY.md`, and `scripts/unmix_repomix.py`. Exclusions affect only reconstructed output; the
-original export still contains the excluded data and neither artifact is automatically safe to
-publish.
+The parser preserves what Repomix emits, but the writer then omits a small, documented set of
+auto-activating agent/IDE configuration, credential-bearing environment files, `.git/`, and OS
+metadata paths. The exact rules, matching semantics, rationale, and explicit non-exclusions are
+in [`EXCLUSIONS.md`](EXCLUSIONS.md); the rules are implemented in `scripts/unmix_repomix.py`.
+Exclusions affect only reconstructed output; the original export still contains the excluded
+data and neither artifact is automatically safe to publish.
 
 ## Verification
 

@@ -3,7 +3,8 @@
 
 Extraction is local and never executes recovered project code or network calls.
 Recovered paths and parsed text are preserved for files selected for extraction.
-Selected agent/credential configuration paths are omitted entirely by default.
+Selected auto-activating agent/IDE configuration and credential-bearing
+environment paths are omitted entirely by default; see docs/EXCLUSIONS.md.
 Output is not guaranteed to be secret-free, runnable, or an exact Git backup.
 """
 
@@ -49,17 +50,41 @@ XML_ENTITY_REPLACEMENTS: tuple[tuple[str, str], ...] = (
     ("&amp;", "&"),  # Last: "&amp;lt;" must decode to "&lt;", not "<".
 )
 
-# Omit auto-activating agent configuration, local workspace metadata, and
-# credential-bearing configuration files. This is safety-based EXCLUSION,
-# NOT content modification. Every written file keeps its parsed name and text.
-# The list is intentionally small and generic; review it before relying on it.
-SKIP_PATH_PATTERNS: tuple[re.Pattern[str], ...] = (
-    re.compile(r"(?:^|/)\.mcp\.json$", re.IGNORECASE),
-    re.compile(r"(?:^|/)\.env$", re.IGNORECASE),
-    re.compile(r"(?:^|/)\.env\.(?!example$|sample$|template$)[^/]+$", re.IGNORECASE),
-    re.compile(r"(?:^|/)\.DS_Store$", re.IGNORECASE),
-    re.compile(r"(?:^|/)\.(?:git|idea|claude|cursor)(?:/|$)", re.IGNORECASE),
-)
+# Exclusion policy: see docs/EXCLUSIONS.md for rationale and non-goals.
+# This is safety-based EXCLUSION, not content modification: every written file
+# keeps its parsed name and text unchanged. Rules match complete path
+# components case-insensitively after converting "\" to "/". There is no
+# substring or glob matching. The list is intentionally small and generic; it
+# is not a secret scanner and does not make retained output safe to publish.
+
+# A matching directory component and everything beneath it is omitted.
+EXCLUDED_DIRECTORY_COMPONENTS: dict[str, str] = {
+    # Agent tool configuration that can load hooks, plugins, or MCP servers
+    # when the reconstructed tree is opened by that tool.
+    ".claude": "agent-config",
+    ".codex": "agent-config",
+    ".cursor": "agent-config",
+    ".gemini": "agent-config",
+    ".opencode": "agent-config",
+    # IDE/workspace metadata that can carry machine-local paths, tasks, and
+    # launch configurations.
+    ".idea": "ide-metadata",
+    ".vscode": "ide-metadata",
+    # Git internals: hooks, credentials, config, and history. Hooks can run
+    # when a user runs Git commands inside the reconstructed tree.
+    ".git": "vcs-metadata",
+}
+
+# Exact final filename (case-folded) to category.
+EXCLUDED_FILE_NAMES: dict[str, str] = {
+    ".mcp.json": "agent-config",
+    ".envrc": "credential-config",  # direnv executes it on directory entry.
+    ".ds_store": "os-metadata",
+}
+
+# Plain environment templates are retained: by convention they document
+# required variables without values. Any other ".env" or ".env.*" is omitted.
+ENV_TEMPLATE_NAMES = frozenset({".env.example", ".env.sample", ".env.template"})
 
 
 class UnmixError(Exception):
@@ -356,9 +381,30 @@ def parse_repomix(content: str, format_type: str) -> list[ParsedEntry]:
     return entries
 
 
+def exclusion_category(file_path: str) -> str | None:
+    """Return the exclusion category for a path, or None when it is retained.
+
+    Matching is case-insensitive and component-exact after normalizing
+    backslashes to "/". A directory rule excludes the named component and all
+    descendants; a file rule matches only the final component. Directory rules
+    take precedence over file rules and template exceptions.
+    """
+    portable = file_path.replace("\\", "/").casefold()
+    parts = portable.split("/")
+    for part in parts:
+        category = EXCLUDED_DIRECTORY_COMPONENTS.get(part)
+        if category is not None:
+            return category
+    name = parts[-1]
+    if name in ENV_TEMPLATE_NAMES:
+        return None
+    if name == ".env" or name.startswith(".env."):
+        return "credential-config"
+    return EXCLUDED_FILE_NAMES.get(name)
+
+
 def should_skip_path(file_path: str) -> bool:
-    portable = file_path.replace("\\", "/")
-    return any(pattern.search(portable) for pattern in SKIP_PATH_PATTERNS)
+    return exclusion_category(file_path) is not None
 
 
 def normalize_archive_path(file_path: str) -> PurePosixPath:
@@ -683,7 +729,9 @@ def main(argv: list[str] | None = None) -> int:
           f"skipped: {len(result.skipped)} | bytes: {result.total_bytes}")
     print("Dry run: no output written" if args.dry_run else f"Output: {args.output_directory}")
     if result.skipped:
-        print("Excluded by safety rules: " + ", ".join(result.skipped))
+        print("Excluded by safety rules (path [category]):")
+        for path in result.skipped:
+            print(f"  - {path} [{exclusion_category(path) or 'excluded'}]")
     return 0
 
 
