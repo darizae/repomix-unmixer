@@ -59,9 +59,15 @@ python3 -m unittest discover -s tests -v
 
 ## Security boundaries and limitations
 
-The extractor never executes packed source; it does not run a shell, imports, package managers, builds, Docker, CI or project-defined scripts. It rejects unsafe path patterns and writes into newly created directories through a temporary staging directory. Some potential symlink race / concurrent filesystem attack scenarios still require an independent audit; **do not run as administrator/root or in a shared adversarial writable directory**. See [`SECURITY.md`](SECURITY.md).
+The extractor never executes packed source; it does not run a shell, imports, package managers, builds, Docker, CI or project-defined scripts. It rejects unsafe path patterns and writes into newly created directories through a temporary staging directory. Some potential symlink race / concurrent filesystem attack scenarios still require an independent audit; **do not run as administrator/root or in a shared adversarial writable directory**. See [`SECURITY.md`](SECURITY.md) for the threat model, reporting channel, and support policy, and [`docs/STATIC_INSPECTION.md`](docs/STATIC_INSPECTION.md) for how to inspect reconstructed trees without triggering execution or network side effects — including why installers, build/test tools, Git operations, containers, editors, and agent integrations count as running recovered code. Outbound-network isolation is recommended whenever your environment allows it.
 
 The input format itself may be lossy. Repomix trims leading/trailing file whitespace, strips file BOMs, and omits binary/ignored files; no Git history or information removed by Repomix transformations can be restored. Parser coverage is verified against Repomix 1.17.0–1.19.0 fixtures for Markdown, XML (default and `--parsable-style`), and JSON, including CRLF, export BOMs, empty files, inline fences, XML entities, and special-character paths. Line-numbered exports are rejected; plain-text, split, compressed, and otherwise lossy exports are documented in [`docs/PARSER_COMPATIBILITY.md`](docs/PARSER_COMPATIBILITY.md).
+
+More questions: [`docs/FAQ.md`](docs/FAQ.md).
+
+## Contributing
+
+See [`CONTRIBUTING.md`](CONTRIBUTING.md). In short: claim a backlog ID, never execute reconstructed output, never commit inputs or reconstructed trees, keep the extractor offline, and run the pinned lint/type/test/build gates locally before opening a PR.
 
 ## Repository scope
 
@@ -69,14 +75,8 @@ This repository contains the extractor, synthetic tests, a portable agent skill,
 
 ## Private GitHub setup (local agent)
 
-The target owner and repository name are already set. After checking the files and reading `docs/AGENT_HANDOFF.md`, an agent running on your machine can initialize Git and create the **private** repository with:
-
-```bash
-bash scripts/bootstrap_private_github.sh
-```
-
-The script requires local GitHub CLI authorization to the `darizae` account and checks that the remote is private. Do not make the repository public as part of setup. It has **not** been created or pushed by this ZIP preparation step.
+The private repository `darizae/repomix-static-reconstructor` already exists. New agents should read `docs/AGENT_HANDOFF.md` (kept for provenance; its setup steps were executed once on 2026-11-19) and then work from `docs/BACKLOG.md` one task at a time on feature branches. Do not make the repository public without explicit maintainer approval and a satisfied release checklist.
 
 ## Repository roadmap
 
-Start with [`docs/AGENT_HANDOFF.md`](docs/AGENT_HANDOFF.md) for no-placeholder setup of the new private **`darizae/repomix-static-reconstructor`** remote, [`docs/BACKLOG.md`](docs/BACKLOG.md) for tasks, and [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md) for the release gates. Agent behavior is defined in [`AGENTS.md`](AGENTS.md). The portable agent skill lives in [`skills/repomix-static-reconstructor/SKILL.md`](skills/repomix-static-reconstructor/SKILL.md) and validates against the Agent Skills specification. The package is pip-installable from a checkout (`pip install .`) with `unmix-repomix`/`reconstruct-all` console commands. Multi-agent skill adapters, branding, and website/docs design are **planned, not implemented**.
+[`docs/BACKLOG.md`](docs/BACKLOG.md) is the authoritative task list; [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md) tracks the public-release gates. Agent behavior is defined in [`AGENTS.md`](AGENTS.md). The portable agent skill lives in [`skills/repomix-static-reconstructor/SKILL.md`](skills/repomix-static-reconstructor/SKILL.md) and validates against the Agent Skills specification. The package is pip-installable from a checkout (`pip install .`) with `unmix-repomix`/`reconstruct-all` console commands. Multi-agent skill adapters, branding, and website/docs design are **planned, not implemented**.
