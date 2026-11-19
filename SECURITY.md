@@ -12,7 +12,7 @@ This software reconstructs **untrusted text**. **It is not a sandbox**, a malwar
 
 ## Important unfinished security work
 
-No completed independent adversarial security review. Directory traversal through concurrent filesystem mutation, symlink races, `rename` behavior on different platforms, hardlinks, permission inheritance, file types, and source parser ambiguities need comprehensive testing. Do not describe this project as hardened, formally audited, confidential, or safe to execute.
+No completed independent adversarial security review. Directory traversal through concurrent filesystem mutation, symlink races, `rename` behavior on different platforms, hardlinks, permission inheritance, and file types need comprehensive testing. Parser fidelity is verified for Repomix 1.17.0–1.19.0 in [`docs/PARSER_COMPATIBILITY.md`](docs/PARSER_COMPATIBILITY.md), but default Repomix XML is not well-formed and remains ambiguous for some content; use `--parsable-style` for untrusted or special-character-heavy exports. Do not describe this project as hardened, formally audited, confidential, or safe to execute.
 
 ## Output and privacy
 

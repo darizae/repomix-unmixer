@@ -44,7 +44,7 @@ python3 -m unittest discover -s tests -v
 
 The extractor never executes packed source; it does not run a shell, imports, package managers, builds, Docker, CI or project-defined scripts. It rejects unsafe path patterns and writes into newly created directories through a temporary staging directory. Some potential symlink race / concurrent filesystem attack scenarios still require an independent audit; **do not run as administrator/root or in a shared adversarial writable directory**. See [`SECURITY.md`](SECURITY.md).
 
-The input format itself may be lossy. No Git history, omitted/ignored files, inaccessible binary files, and information removed by Repomix compression can be restored. Current parser coverage: basic Repomix Markdown, XML and JSON. XML escaping, line-numbered output, CRLF handling and plain-text exports require further verification (see backlog).
+The input format itself may be lossy. Repomix trims leading/trailing file whitespace, strips file BOMs, and omits binary/ignored files; no Git history or information removed by Repomix transformations can be restored. Parser coverage is verified against Repomix 1.17.0–1.19.0 fixtures for Markdown, XML (default and `--parsable-style`), and JSON, including CRLF, export BOMs, empty files, inline fences, XML entities, and special-character paths. Line-numbered exports are rejected; plain-text, split, compressed, and otherwise lossy exports are documented in [`docs/PARSER_COMPATIBILITY.md`](docs/PARSER_COMPATIBILITY.md).
 
 ## Repository scope
 

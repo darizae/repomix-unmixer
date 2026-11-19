@@ -30,9 +30,23 @@ WINDOWS_RESERVED_NAMES.update(f"LPT{i}" for i in range(1, 10))
 
 MARKDOWN_HEADER_RE = re.compile(r"^## File: ([^\r\n]+)\r?\n?$")
 MARKDOWN_OPEN_FENCE_RE = re.compile(r"^(?P<fence>`{3,})(?P<info>[^`\r\n]*)\r?\n?$")
+# Matches both Repomix XML styles:
+#   default:   <file path="p">\ncontent\n</file>
+#   parsable:  <file path="p">content</file>
+# Structural newlines are removed after matching; see parse_xml().
 XML_FILE_RE = re.compile(
-    r'<file path="([^"\r\n]+)">\r?\n(.*?)\r?\n</file>',
+    r'<file path="(?P<path>[^"]*)">(?P<content>.*?)</file>',
     re.DOTALL,
+)
+XML_OPEN_TAG_PREFIX = '<file path="'
+LINE_NUMBER_MARKER_RE = re.compile(r"line numbers? have been added", re.IGNORECASE)
+LINE_NUMBERED_LINE_RE = re.compile(r"^\s*(?P<number>\d+): ")
+XML_ENTITY_REPLACEMENTS: tuple[tuple[str, str], ...] = (
+    ("&lt;", "<"),
+    ("&gt;", ">"),
+    ("&quot;", '"'),
+    ("&apos;", "'"),
+    ("&amp;", "&"),  # Last: "&amp;lt;" must decode to "&lt;", not "<".
 )
 
 # Omit auto-activating agent configuration, local workspace metadata, and
@@ -78,6 +92,11 @@ def mib_to_bytes(value: float) -> int:
     return int(value * 1024 * 1024)
 
 
+def strip_export_bom(content: str) -> str:
+    """Remove a UTF-8 BOM decoded as U+FEFF at the start of an export."""
+    return content[1:] if content.startswith("\ufeff") else content
+
+
 def strip_one_line_ending(text: str) -> str:
     """Remove exactly one delimiter newline before a closing Repomix fence/tag."""
     if text.endswith("\r\n"):
@@ -87,19 +106,99 @@ def strip_one_line_ending(text: str) -> str:
     return text
 
 
+def strip_one_leading_line_ending(text: str) -> str:
+    """Remove exactly one structural newline after a default-style XML tag."""
+    if text.startswith("\r\n"):
+        return text[2:]
+    if text.startswith("\n") or text.startswith("\r"):
+        return text[1:]
+    return text
+
+
+def unescape_xml_entities(text: str) -> str:
+    """Decode the five entities emitted by Repomix --parsable-style."""
+    for entity, character in XML_ENTITY_REPLACEMENTS:
+        text = text.replace(entity, character)
+    return text
+
+
+def is_parsable_xml(content: str) -> bool:
+    """Parsable XML is wrapped in <repomix> before any file entry."""
+    first_entry = content.find(XML_OPEN_TAG_PREFIX)
+    preamble = content if first_entry < 0 else content[:first_entry]
+    return "<repomix>" in preamble
+
+
+def looks_line_numbered(text: str) -> bool:
+    """Detect Repomix --output-show-line-numbers prefixes in file content."""
+    lines = text.splitlines()
+    if not lines:
+        return False
+    for expected, line in enumerate(lines, start=1):
+        match = LINE_NUMBERED_LINE_RE.match(line)
+        if match is None or int(match.group("number")) != expected:
+            return False
+    return True
+
+
+def export_preamble(content: str, format_type: str) -> str:
+    """Return Repomix-generated text before the first file entry."""
+    limit = 64 * 1024
+    if format_type == "markdown":
+        match = re.search(r"^## File: ", content, re.MULTILINE)
+        end = match.start() if match else len(content)
+    elif format_type == "xml":
+        index = content.find(XML_OPEN_TAG_PREFIX)
+        end = index if index >= 0 else len(content)
+    else:
+        index = content.find('"files"')
+        end = index if index >= 0 else len(content)
+    return content[: min(end, limit)]
+
+
+def reject_line_numbered_export(content: str, format_type: str) -> None:
+    """Refuse exports whose file contents were annotated with line numbers."""
+    if LINE_NUMBER_MARKER_RE.search(export_preamble(content, format_type)):
+        raise UnmixError(
+            "Repomix line-numbered output (--output-show-line-numbers) is lossy and "
+            "cannot be reconstructed faithfully; regenerate without that option"
+        )
+
+
 def detect_format(content: str) -> str | None:
-    stripped = content.lstrip("\ufeff \t\r\n")
+    content = strip_export_bom(content)
+    stripped = content.lstrip(" \t\r\n")
     if stripped.startswith("{"):
         return "json"
-    if re.search(r"^## File: [^\r\n]+$", content, re.MULTILINE):
-        return "markdown"
-    if '<file path="' in content and "</file>" in content:
+
+    # XML file content may itself contain Markdown headers, and Markdown file
+    # content may contain XML tags. The first structural marker wins: a
+    # Markdown header always precedes file content, while an XML wrapper/section
+    # precedes the first file entry.
+    markers: list[tuple[int, str]] = []
+    markdown_header = re.search(r"^## File: [^\r\n]+\r?$", content, re.MULTILINE)
+    if markdown_header:
+        markers.append((markdown_header.start(), "markdown"))
+    for pattern in (
+        r"<repomix>",
+        r"^<file_summary>",
+        r"^<directory_structure>",
+        r"^<files>",
+    ):
+        match = re.search(pattern, content, re.MULTILINE)
+        if match:
+            markers.append((match.start(), "xml"))
+    if markers:
+        return min(markers)[1]
+
+    if XML_OPEN_TAG_PREFIX in content and "</file>" in content:
         return "xml"
     return None
 
 
 def parse_markdown(content: str) -> list[ParsedEntry]:
     """Parse Repomix Markdown using each file's actual fence length."""
+    content = strip_export_bom(content)
     lines = content.splitlines(keepends=True)
     entries: list[ParsedEntry] = []
     i = 0
@@ -150,15 +249,55 @@ def parse_markdown(content: str) -> list[ParsedEntry]:
 
 
 def parse_xml(content: str) -> list[ParsedEntry]:
-    entries = [ParsedEntry(m.group(1), m.group(2)) for m in XML_FILE_RE.finditer(content)]
-    if not entries:
+    content = strip_export_bom(content)
+    parsable = is_parsable_xml(content)
+    matches = list(XML_FILE_RE.finditer(content))
+    declared = content.count(XML_OPEN_TAG_PREFIX)
+
+    if not matches:
+        if declared:
+            raise UnmixError(
+                "Malformed Repomix XML: could not parse every <file path=...> entry. "
+                "Default Repomix XML is not well-formed; regenerate with --parsable-style"
+            )
         raise UnmixError("No Repomix XML file entries were found")
+
+    if declared != len(matches):
+        raise UnmixError(
+            "Malformed or ambiguous Repomix XML: could not parse every <file path=...> entry. "
+            "Default XML cannot represent a path containing a double quote or content "
+            "containing a literal </file>; regenerate with --parsable-style"
+        )
+
+    entries: list[ParsedEntry] = []
+    for match in matches:
+        file_path = match.group("path")
+        file_content = match.group("content")
+        if parsable:
+            file_path = unescape_xml_entities(file_path)
+            file_content = unescape_xml_entities(file_content)
+        else:
+            # Default style always wraps content in one structural newline on
+            # each side. Parsable style emits content directly between tags.
+            file_content = strip_one_leading_line_ending(file_content)
+            file_content = strip_one_line_ending(file_content)
+        entries.append(ParsedEntry(file_path, file_content))
     return entries
 
 
+def reject_duplicate_json_keys(pairs: list[tuple[str, object]]) -> dict[str, object]:
+    result: dict[str, object] = {}
+    for key, value in pairs:
+        if key in result:
+            raise UnmixError(f"Duplicate JSON key is ambiguous and rejected: {key!r}")
+        result[key] = value
+    return result
+
+
 def parse_json(content: str) -> list[ParsedEntry]:
+    content = strip_export_bom(content)
     try:
-        data = json.loads(content)
+        data = json.loads(content, object_pairs_hook=reject_duplicate_json_keys)
     except json.JSONDecodeError as exc:
         raise UnmixError(f"Failed to parse JSON: {exc}") from exc
 
@@ -194,13 +333,27 @@ def parse_json(content: str) -> list[ParsedEntry]:
 
 
 def parse_repomix(content: str, format_type: str) -> list[ParsedEntry]:
+    if format_type not in {"markdown", "xml", "json"}:
+        raise UnmixError(f"Unsupported format: {format_type}")
+
+    reject_line_numbered_export(content, format_type)
     if format_type == "markdown":
-        return parse_markdown(content)
-    if format_type == "xml":
-        return parse_xml(content)
-    if format_type == "json":
-        return parse_json(content)
-    raise UnmixError(f"Unsupported format: {format_type}")
+        entries = parse_markdown(content)
+    elif format_type == "xml":
+        entries = parse_xml(content)
+    else:
+        entries = parse_json(content)
+
+    # The summary marker is absent when --no-file-summary is combined with
+    # --output-show-line-numbers, so inspect each entry as a second guard.
+    for entry in entries:
+        if looks_line_numbered(entry.content):
+            raise UnmixError(
+                f"File {entry.original_path!r} appears to contain Repomix line-number "
+                "prefixes (--output-show-line-numbers), which are lossy; regenerate "
+                "without that option"
+            )
+    return entries
 
 
 def should_skip_path(file_path: str) -> bool:
@@ -411,7 +564,9 @@ def read_input_file(repomix_file: str | os.PathLike[str], max_input_bytes: int) 
         raise UnmixError(f"Input file is {size} bytes, exceeding input limit of {max_input_bytes} bytes")
 
     try:
-        with input_path.open("r", encoding="utf-8", newline="") as handle:
+        # utf-8-sig accepts an optional export BOM without leaking U+FEFF into
+        # the first header; newline="" preserves content line endings.
+        with input_path.open("r", encoding="utf-8-sig", newline="") as handle:
             content = handle.read()
     except UnicodeDecodeError as exc:
         raise UnmixError(f"Input is not valid UTF-8: {exc}") from exc

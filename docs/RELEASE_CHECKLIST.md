@@ -10,7 +10,7 @@ See `docs/BACKLOG.md` for task IDs. GitHub target: `darizae/repomix-static-recon
 - [ ] Protect default branch; set issue/security reporting policy and code owners as appropriate
 
 ## Parser and security
-- [ ] Repomix-generated fixtures for Markdown/XML/JSON across versions, CRLF/BOM, escapes, malformed content
+- [x] Repomix-generated fixtures for Markdown/XML/JSON across versions, CRLF/BOM, escapes, malformed content — P0-10: Repomix 1.19.0 fixtures, byte-identical with 1.17.0/1.18.1; see `docs/PARSER_COMPATIBILITY.md`
 - [ ] Define exactly what is preserved and what is intentionally excluded
 - [ ] Concurrent-filesystem threat model and symlink/race/hardlink audit
 - [ ] Linux/macOS/Windows integration tests and failure-injection tests
