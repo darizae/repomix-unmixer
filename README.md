@@ -90,6 +90,6 @@ Read [Security](SECURITY.md), [static inspection](docs/STATIC_INSPECTION.md), [p
 
 ## Documentation
 
-[FAQ](docs/FAQ.md) · [Agent Skill](skills/repomix-static-reconstructor/SKILL.md) · [Contributing](CONTRIBUTING.md) · [Backlog](docs/BACKLOG.md) · [Release checklist](docs/RELEASE_CHECKLIST.md)
+[Docs preview](docs/site/README.md) · [FAQ](docs/FAQ.md) · [Agent Skill](skills/repomix-static-reconstructor/SKILL.md) · [Contributing](CONTRIBUTING.md) · [Backlog](docs/BACKLOG.md) · [Release checklist](docs/RELEASE_CHECKLIST.md)
 
 **Status:** private pre-release. No public license has been selected and no PyPI release is claimed.

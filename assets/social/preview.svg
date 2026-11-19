@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+<title id="title">repomix-unmixer social preview</title>
+<desc id="desc">A packed document expands into three files next to the project name and static-inspection tagline.</desc>
+<defs>
+  <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#0B1220"/><stop offset="1" stop-color="#172A44"/></linearGradient>
+  <linearGradient id="accent" x1="0" x2="1"><stop stop-color="#8EA6FF"/><stop offset="1" stop-color="#65E5C8"/></linearGradient>
+</defs>
+<rect width="1200" height="630" fill="url(#bg)"/>
+<circle cx="1080" cy="8" r="390" fill="#223F61" opacity=".55"/><circle cx="114" cy="632" r="280" fill="#1A4552" opacity=".4"/>
+<rect x="64" y="58" width="135" height="135" rx="34" fill="#0B1220" stroke="#415B75" stroke-width="2"/>
+<g transform="translate(84 78) scale(0.99)">
+  <rect x="17" y="23" width="30" height="50" rx="7" fill="#8EA6FF"/>
+  <path d="M25 37h14M25 46h14M25 55h9" stroke="#0B1220" stroke-width="3" stroke-linecap="round"/>
+  <path d="M47 48h11M58 29v38M58 29h6M58 48h6M58 67h6" fill="none" stroke="#C9F9EF" stroke-width="3" stroke-linecap="round"/>
+  <rect x="64" y="21" width="17" height="16" rx="4" fill="#65E5C8"/><rect x="64" y="40" width="17" height="16" rx="4" fill="#65E5C8"/><rect x="64" y="59" width="17" height="16" rx="4" fill="#65E5C8"/>
+</g>
+<text x="64" y="297" fill="#F8FAFC" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="78" font-weight="760" letter-spacing="-3">repomix<tspan fill="#65E5C8">-unmixer</tspan></text>
+<rect x="64" y="335" width="235" height="6" rx="3" fill="url(#accent)"/>
+<text x="64" y="414" fill="#E1EBF7" font-family="ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif" font-size="34">Unpack exports for static inspection.</text>
+<text x="64" y="480" fill="#AEC0D5" font-family="ui-monospace,monospace" font-size="24">Markdown · XML · JSON  →  file tree</text>
+<text x="64" y="568" fill="#65E5C8" font-family="ui-sans-serif,system-ui,sans-serif" font-size="20" font-weight="650">LOCAL · OFFLINE · NO RECOVERED-CODE EXECUTION</text>
+</svg>
