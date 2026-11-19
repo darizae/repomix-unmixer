@@ -1,8 +1,8 @@
-# repomix-unmixer v0.1.0 — release candidate notes
+# repomix-unmixer v0.1.0 — release notes
 
-**Status: locally qualified release candidate, NOT published.** No PyPI upload,
-GitHub release, or public visibility change has occurred. This document is the
-proposed release notes and checksum record for maintainer approval.
+**Status: published 2026-11-19.** PyPI `repomix-unmixer 0.1.0` is live, the
+repository is public, and tag `v0.1.0` plus this release exist. This is the
+release notes and checksum record attached to the GitHub release.
 
 ## What it is
 
@@ -63,13 +63,12 @@ e698a628139dac750dbb3c7b8ba99857778543f5e6ab0dab3586152d0589fb47  repomix_unmixe
 044081d14db574f837d1c6f2ec05e84a894895ede24f0616689bb77f60c75ba8  repomix_unmixer-0.1.0.tar.gz
 ```
 
-## Blocking items remaining before publication
+## Status
 
-1. Independent rights/provenance review sign-off (maintainer) and any
-   trademark/collision clearance.
-2. Maintainer approval to make the repository public and tag `v0.1.0`.
-3. PyPI pending-publisher setup (interactive account step).
-4. Optional: Windows/Linux CI validation once Actions quota is restored.
+Published 2026-11-19: PyPI `repomix-unmixer 0.1.0` uploaded via Trusted
+Publishing; repository made public; tag `v0.1.0` pushed; Agent Skill indexed in
+the Agent Skills marketplace (`status: approved`).
 
-Deferred / non-blocking: website deployment, social-card upload, demo GIF,
-host-specific agent wrappers, and marketplace listings.
+Deferred / non-blocking: Windows/Linux CI validation once Actions quota is
+restored, website deployment, social-card upload, demo GIF, host-specific
+agent wrappers, and third-party marketplace review.

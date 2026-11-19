@@ -1,13 +1,14 @@
 # Publishing guide — repomix-unmixer
 
-This page describes how a **v0.1.0 release** would be published to PyPI and how
-the portable Agent Skill would be distributed. **Nothing here has been
-published.** This repository is private and no PyPI release is claimed.
+This page describes how the **v0.1.0 release** was published to PyPI and how
+the portable Agent Skill is distributed. **Published 2026-11-19:** PyPI
+`repomix-unmixer 0.1.0` is live (Trusted Publishing), the repository is public,
+and the Agent Skill is indexed in the Agent Skills marketplace.
 
-**Do not publish until** every blocking item in
-[`RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md) passes and the maintainer
-explicitly approves a public release. Website deployment, social-preview
-upload, demo GIF, and marketing remain deferred.
+Publication gates were satisfied and the v0.1.0 release was published on
+2026-11-19; the repository is public and PyPI `repomix-unmixer 0.1.0` is live.
+Website deployment, social-preview upload, demo GIF, and marketing remain
+deferred.
 
 ## 1. Preflight (run locally, before tagging)
 
