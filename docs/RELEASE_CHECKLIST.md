@@ -24,10 +24,10 @@ See `docs/BACKLOG.md` for task IDs. GitHub remote: `darizae/repomix-unmixer` (**
 - [x] **repomix-unmixer** naming and repo/package/CLI identifiers accepted by maintainer (2026-11-19). No further naming review.
 - [x] Create `pyproject.toml`, `src/` layout, console entrypoint, version command, wheel/sdist — P0-13: setuptools src/ layout, `unmix-repomix`/`reconstruct-all` entry points, `--version`, wheel+sdist build with `twine check` PASSED
 - [x] Clean environment installation, uninstall, and pinned supported Python-version tests — P0-13/P0-14: clean-venv install (wheel and sdist), single-export + batch smoke, uninstall verified locally; CI matrix runs Python 3.10–3.13 on ubuntu/macos/windows with the full test suite
-- [x] Portable Agent Skill validates against the official specification (P0-15), including CI structure tests.
-- [ ] Execute host-specific installation smoke tests for Claude Code, Codex, Cursor, Gemini CLI and OpenCode (P1-08; deferred).
+- [x] Portable Agent Skill validates against the official specification (P0-15) — 2026-11-19 Phase C: `agentskills validate` → "Valid skill" (skills-ref 0.1.1); installed CLI commands asserted against the built wheel/sdist; no-execute contract enforced (`tests/test_no_execution.py`).
+- [ ] Execute host-specific installation smoke tests for Claude Code, Codex, Cursor, Gemini CLI and OpenCode (P1-08; **deferred** — interactive in-host discovery would invoke model APIs and modify personal agent config; installed versions and per-host install paths recorded in `docs/AGENT_INSTALL.md`).
 - [ ] **Conditional, not mandatory:** add host wrappers only where real host testing proves portability insufficient.
-- [x] Document installation, offline operation, safety limits, parser coverage and FAQ; add agent setup prompt (P0-16/P1-03).
+- [x] Document installation, offline operation, safety limits, parser coverage and FAQ; add agent setup prompt (P0-16/P1-03); agent validation + per-host install notes in `docs/AGENT_INSTALL.md` (Phase C).
 - [ ] **Deferred / non-blocking:** optional authentic demo capture and independent README rendering review; current README accepted.
 
 ## Brand / open-source polish

@@ -32,7 +32,7 @@ GitHub release exists. Publication is gated on the mandatory checks in
   issue forms, PR template, `SECURITY.md` reporting channel.
 - Documentation: `README.md`, `docs/FAQ.md`, `docs/STATIC_INSPECTION.md`,
   `docs/PARSER_COMPATIBILITY.md`, `docs/EXCLUSIONS.md`,
-  `docs/SECURITY_REVIEW.md`.
+  `docs/SECURITY_REVIEW.md`, `docs/AGENT_INSTALL.md`.
 
 ### Fixed
 
