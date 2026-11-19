@@ -34,7 +34,7 @@ class ExtractorTests(unittest.TestCase):
     def run_files(self, files, input_file=None, output_dir=None, **kwargs):
         input_path = Path(input_file) if input_file else self.input
         output_path = Path(output_dir) if output_dir else self.output
-        input_path.write_text(markdown(files), encoding="utf-8")
+        input_path.write_text(markdown(files), encoding="utf-8", newline="")
         return unmix_repomix(input_path, output_path, **kwargs)
 
     def test_content_and_path_fidelity(self):
@@ -45,7 +45,7 @@ class ExtractorTests(unittest.TestCase):
 
     def test_variable_fences(self):
         raw = "## File: a.md\n````\n```js\nconst x = 1\n```\n````\n"
-        self.input.write_text(raw)
+        self.input.write_text(raw, newline="")
         unmix_repomix(self.input, self.output)
         self.assertEqual((self.output / "a.md").read_text(), "```js\nconst x = 1\n```")
 
@@ -236,7 +236,7 @@ class ExtractorTests(unittest.TestCase):
             ("file3.txt", "content3"),
         ]
 
-        self.input.write_text(markdown(files))
+        self.input.write_text(markdown(files), newline="")
         output_dir = self.root / "atomic_test"
 
         # This should succeed and create all files
@@ -280,13 +280,16 @@ class ExtractorTests(unittest.TestCase):
 
     def test_xml_full_reconstruct(self):
         xml = self.root / "repo.xml"
-        xml.write_text('<files>\n<file path="src/main.py">\nprint(1)\n</file>\n</files>')
+        xml.write_text(
+            '<files>\n<file path="src/main.py">\nprint(1)\n</file>\n</files>',
+            newline="",
+        )
         unmix_repomix(xml, self.output)
         self.assertEqual((self.output / "src/main.py").read_text(), "print(1)")
 
     def test_json_full_reconstruct(self):
         data = self.root / "repo.json"
-        data.write_text(json.dumps({"files": {"a.txt": "x", "b.txt": "y"}}))
+        data.write_text(json.dumps({"files": {"a.txt": "x", "b.txt": "y"}}), newline="")
         unmix_repomix(data, self.output)
         self.assertEqual((self.output / "a.txt").read_text(), "x")
 
@@ -311,7 +314,7 @@ class ExtractorTests(unittest.TestCase):
         inp = self.root / "inputs"
         inp.mkdir()
         output = self.root / "outputs"
-        (inp / "demo.md").write_text(markdown([("src/file.txt", "content")]))
+        (inp / "demo.md").write_text(markdown([("src/file.txt", "content")]), newline="")
         env = dict(os.environ)
         env["PYTHONPATH"] = (
             str(Path(__file__).resolve().parents[1] / "src")
