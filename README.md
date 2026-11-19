@@ -7,17 +7,19 @@
 
 # repomix-unmixer
 
-**Turn a [Repomix](https://repomix.com/) export into a browsable file tree—without running the recovered code.**
+**Unmix Repomix. Inspect the code, not its side effects.**
 
-A local Python CLI for unpacking supported Markdown, XML and JSON exports into fresh directories. Designed for **static, offline source inspection**, not for executing a reconstructed application.
+**Security-first, offline unpacking:** reconstruct [Repomix](https://repomix.com/) Markdown, XML and JSON exports into readable file trees—**without ever executing recovered code**. The extractor rejects unsafe paths, refuses overwrites, enforces resource limits and omits common auto-activating configurations.
+
+Built for **safer static inspection** of untrusted exports in a trusted local output directory; not a sandbox, malware scanner or guarantee that recovered files are confidential.
 
 ## Core features
 
-- **Unpack exports:** restore individual text files and folder structure from Repomix Markdown, XML and JSON.
-- **Validate first:** `--dry-run`, traversal/path rejection, duplicate and case-collision detection, and file/directory conflict checks.
-- **Write defensively:** new destinations only, staged output, and configurable file/count/size limits.
-- **Reduce auto-activation:** exclude a documented, limited set of agent/IDE configuration and environment files; retained text is not changed.
-- **Work solo or in batches:** `unmix-repomix`, `reconstruct-all`, or the portable Agent Skill.
+- **Three export formats:** reconstruct text files and directories from Repomix **Markdown, XML and JSON**.
+- **Block unsafe paths:** reject traversal, Windows-special names, duplicate/case-colliding paths and file/directory conflicts before writing.
+- **Protect existing files:** dry-run first; fresh-output-only staged writes refuse existing destinations, with file-count and byte limits.
+- **Reduce accidental auto-execution:** exclude common agent/IDE auto-start configuration and environment files; never run recovered code or make network requests.
+- **CLI, batches and agents:** `unmix-repomix` for individual exports, `reconstruct-all` for Markdown batches, plus the portable Agent Skill.
 
 ## Quick start
 
@@ -27,14 +29,19 @@ Requires **Python 3.10+**. From a trusted checkout (not from a recovered reposit
 python3 -m pip install .
 ```
 
-**One export**
+**One export (Markdown, XML or JSON)**
 
 ```bash
 unmix-repomix ./repomix-output.md ./restored-tree --dry-run
 unmix-repomix ./repomix-output.md ./restored-tree
+# Other supported formats:
+unmix-repomix ./repomix-output.xml ./restored-xml
+unmix-repomix ./repomix-output.json ./restored-json
 ```
 
-**Multiple exports**
+The CLI detects the input format automatically. For XML, Repomix `--parsable-style` is recommended when content is ambiguous. Plain-text and line-numbered exports are unsupported.
+
+**Batch Markdown exports**
 
 Place your own `.md` exports inside `repomix-files/` (ignored by Git), then:
 
