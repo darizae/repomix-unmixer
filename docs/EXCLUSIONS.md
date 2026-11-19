@@ -2,7 +2,8 @@
 
 Status: implemented for **P0-12**. This document defines exactly which paths the
 reconstructor omits from **reconstructed output**, why, and what the policy does not do.
-The rules are implemented in `scripts/unmix_repomix.py` (`EXCLUDED_DIRECTORY_COMPONENTS`,
+The rules are implemented in `src/repomix_static_reconstructor/extractor.py`
+(`EXCLUDED_DIRECTORY_COMPONENTS`,
 `EXCLUDED_FILE_NAMES`, `ENV_TEMPLATE_NAMES`, `exclusion_category`) and tested in
 `tests/test_exclusions.py`.
 
@@ -110,7 +111,7 @@ out of scope and would violate the safety contract.
 
 ## Changing the policy
 
-Update the constants in `scripts/unmix_repomix.py`, the table above, and
+Update the constants in `src/repomix_static_reconstructor/extractor.py`, the table above, and
 `tests/test_exclusions.py` together. Keep the list small, component-exact, and justified by
 auto-activation or credential risk. Do not turn it into a broad secret scanner or a promise
 that retained output is safe.

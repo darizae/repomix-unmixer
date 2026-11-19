@@ -7,8 +7,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-from unmix_repomix import (  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+from repomix_static_reconstructor.extractor import (  # noqa: E402
     UnmixError,
     detect_format,
     parse_markdown,

@@ -7,8 +7,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
-from unmix_repomix import (  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+from repomix_static_reconstructor.extractor import (  # noqa: E402
     UnmixError,
     normalize_archive_path,
     parse_json,
@@ -291,19 +291,21 @@ class ExtractorTests(unittest.TestCase):
         inp = self.root / 'inputs'; inp.mkdir()
         output = self.root / 'outputs'
         (inp / 'demo.md').write_text(markdown([('src/file.txt', 'content')]))
-        script = Path(__file__).resolve().parents[1] / 'scripts/reconstruct_all.py'
-        first = subprocess.run([sys.executable, str(script), '--input-dir', str(inp),
+        env = dict(os.environ)
+        env['PYTHONPATH'] = str(Path(__file__).resolve().parents[1] / 'src') + os.pathsep + env.get('PYTHONPATH', '')
+        module = [sys.executable, '-m', 'repomix_static_reconstructor.batch']
+        first = subprocess.run(module + ['--input-dir', str(inp),
                                 '--output-dir', str(output), '--dry-run'],
-                               capture_output=True, text=True)
+                               capture_output=True, text=True, env=env)
         self.assertEqual(first.returncode, 0, first.stderr)
         self.assertFalse(output.exists())
-        second = subprocess.run([sys.executable, str(script), '--input-dir', str(inp),
-                                 '--output-dir', str(output)], capture_output=True, text=True)
+        second = subprocess.run(module + ['--input-dir', str(inp),
+                                 '--output-dir', str(output)], capture_output=True, text=True, env=env)
         self.assertEqual(second.returncode, 0, second.stderr)
         self.assertEqual((output / 'demo/src/file.txt').read_text(), 'content')
         self.assertTrue((output / 'RECONSTRUCTION_REPORT.md').exists())
-        third = subprocess.run([sys.executable, str(script), '--input-dir', str(inp),
-                                '--output-dir', str(output)], capture_output=True, text=True)
+        third = subprocess.run(module + ['--input-dir', str(inp),
+                                '--output-dir', str(output)], capture_output=True, text=True, env=env)
         self.assertNotEqual(third.returncode, 0)
         self.assertEqual((output / 'demo/src/file.txt').read_text(), 'content')
 
