@@ -15,7 +15,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-from repomix_static_reconstructor.extractor import (  # noqa: E402
+from repomix_static_reconstructor.extractor import (
     UnmixError,
     exclusion_category,
     unmix_repomix,
@@ -27,9 +27,7 @@ def markdown(files):
 
 
 def xml(files):
-    entries = "".join(
-        f'<file path="{path}">\n{content}\n</file>\n' for path, content in files
-    )
+    entries = "".join(f'<file path="{path}">\n{content}\n</file>\n' for path, content in files)
     return f"<files>\n{entries}</files>"
 
 
@@ -171,13 +169,9 @@ class ExclusionExtractionTests(unittest.TestCase):
 
         self.assertEqual(set(result.skipped), excluded)
         self.assertEqual(set(result.extracted), set(retained))
-        self.assertEqual(
-            result.total_bytes, sum(len(text.encode()) for text in retained.values())
-        )
+        self.assertEqual(result.total_bytes, sum(len(text.encode()) for text in retained.values()))
         for path, content in retained.items():
-            self.assertEqual(
-                (self.output / path).read_bytes(), content.encode("utf-8"), path
-            )
+            self.assertEqual((self.output / path).read_bytes(), content.encode("utf-8"), path)
         for path in excluded:
             self.assertFalse((self.output / path).exists(), path)
         self.assertFalse((self.output / ".claude").exists())
@@ -214,9 +208,7 @@ class ExclusionExtractionTests(unittest.TestCase):
 
     def test_excluded_entries_still_count_against_file_limit(self):
         with self.assertRaises(UnmixError):
-            self.run_files(
-                [(".env", "x"), ("keep.txt", "y")], dry_run=True, max_files=1
-            )
+            self.run_files([(".env", "x"), ("keep.txt", "y")], dry_run=True, max_files=1)
         self.assertFalse(self.output.exists())
 
     def test_dry_run_reports_exclusions_without_writing(self):
@@ -225,9 +217,7 @@ class ExclusionExtractionTests(unittest.TestCase):
         self.assertFalse(self.output.exists())
 
     def test_cli_reports_exclusion_category(self):
-        self.input.write_text(
-            markdown([(".mcp.json", "{}"), ("keep.txt", "y")]), encoding="utf-8"
-        )
+        self.input.write_text(markdown([(".mcp.json", "{}"), ("keep.txt", "y")]), encoding="utf-8")
         src = Path(__file__).resolve().parents[1] / "src"
         env = dict(os.environ)
         env["PYTHONPATH"] = str(src) + os.pathsep + env.get("PYTHONPATH", "")

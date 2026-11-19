@@ -18,7 +18,6 @@ from repomix_static_reconstructor.extractor import (
     unmix_repomix,
 )
 
-
 BUNDLE_ROOT = Path(__file__).resolve().parent.parent.parent
 DEFAULT_INPUT_DIR = BUNDLE_ROOT / "repomix-files"
 DEFAULT_OUTPUT_DIR = BUNDLE_ROOT / "reconstructed"
@@ -36,9 +35,7 @@ def safe_output_name(path: Path) -> str:
 
 
 def discover_markdown_files(input_dir: Path) -> list[Path]:
-    return sorted(
-        p for p in input_dir.iterdir() if p.is_file() and p.suffix.lower() == ".md"
-    )
+    return sorted(p for p in input_dir.iterdir() if p.is_file() and p.suffix.lower() == ".md")
 
 
 def write_report(
@@ -66,9 +63,12 @@ def write_report(
             "## Rules",
             "",
             "- These outputs are static example code only.",
-            "- Do not run package managers, scripts, builds, tests, containers, CI, MCP, or applications inside them.",
+            "- Do not run package managers, scripts, builds, tests, containers, CI, MCP,",
+            "  or applications inside them.",
             "- Paths and text are not rewritten; original sensitive content can remain.",
-            "- Safety exclusions omitted agent/IDE configuration, credential-bearing environment files, .git/, and OS metadata. They affect only this output, not the original export.",
+            "- Safety exclusions omitted agent/IDE configuration, credential-bearing",
+            "  environment files, .git/, and OS metadata. They affect only this output,",
+            "  not the original export.",
             "",
         ]
     )
@@ -148,9 +148,7 @@ def main(argv: list[str] | None = None) -> int:
         rows.append((source, target, result))
 
     write_report(output_root, rows, args.dry_run)
-    print(
-        "\nDone. Reconstructed repositories are STATIC EXAMPLES ONLY; do not execute them."
-    )
+    print("\nDone. Reconstructed repositories are STATIC EXAMPLES ONLY; do not execute them.")
     return 0
 
 
