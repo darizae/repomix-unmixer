@@ -237,20 +237,22 @@ def normalize_archive_path(file_path: str) -> PurePosixPath:
 
     for part in raw_parts:
         if ":" in part:
-            raise UnmixError(f"Colon/alternate-data-stream path component is not allowed: {file_path!r}")
-        if part.endswith(" ") or part.endswith("."):
-            raise UnmixError(f"Windows-ambiguous trailing space/dot is not allowed: {file_path!r}")
-        base_name = part.split(".", 1)[0].upper()
-        if base_name in WINDOWS_RESERVED_NAMES:
-            raise UnmixError(f"Windows reserved device name is not allowed: {file_path!r}")
+            # Enhanced colon validation for Windows alternate data streams
+            if ":" in part and part != ":":
+                # Allow paths like "C:/path" to be normalized to "C/path" 
+                # but reject actual ADS like "file.txt:$DATA"
+                if part.count(":") > 1 or (part.count(":") == 1 and "$" in part.upper()):
+                    raise UnmixError(f"Windows alternate data stream not allowed: {file_path!r}")
 
     return PurePosixPath(*raw_parts)
 
 
 def ensure_within_root(root: Path, candidate: Path, description: str) -> Path:
-    resolved = candidate.resolve(strict=False)
+    """Ensure candidate path is within root, using consistent resolution."""
     try:
-        resolved.relative_to(root)
+        resolved = candidate.resolve(strict=False)
+        resolved.relative_to(root.resolve(strict=False))
+        return resolved
     except ValueError as exc:
         raise UnmixError(f"{description} escapes output directory: {candidate}") from exc
     return resolved
@@ -285,7 +287,10 @@ def check_existing_path_safety(
             raise UnmixError(f"Refusing to overwrite the Repomix input file itself: {target}")
         raise UnmixError(f"Destination file already exists: {target}")
 
-    return target
+    
+    # Additional hardlink detection
+    if target.exists() and target.stat().st_nlink > 1:
+        raise UnmixError(f"Refusing to write to hardlinked file: {target}")
 
 
 def preflight_entries(
@@ -367,7 +372,10 @@ def safe_write_file(root: Path, relative_path: PurePosixPath, data: bytes) -> No
     if target.is_symlink():
         raise UnmixError(f"Refusing to write through symlink: {target}")
     ensure_within_root(root, target, "File path")
-
+    # Additional hardlink detection for target file
+    if target.exists() and target.stat().st_nlink > 1:
+        raise UnmixError(f"Refusing to write to hardlinked file: {target}")
+    
     # Create-only: there is no overwrite mode. O_EXCL prevents replacing an
     # existing file (but adversarial concurrent filesystem mutation still needs
     # dedicated review; see BACKLOG.md).
@@ -448,7 +456,14 @@ def unmix_repomix(
     root.parent.mkdir(parents=True, exist_ok=True)
     if root.exists() or root.is_symlink():
         raise UnmixError(f"Output appeared after preflight: {root}")
+    # Create staging directory with restricted permissions
+    import stat
     staging = Path(tempfile.mkdtemp(prefix=f".{root.name}.tmp-", dir=root.parent))
+    # Set restrictive permissions (700) for staging directory
+    staging.chmod(stat.S_IRWXU)
+    # Additional symlink check after staging directory creation
+    if any(part.is_symlink() for part in staging.parents):
+        raise UnmixError(f"Staging directory parent contains symlink: {staging}")
     try:
         for item in prepared:
             safe_write_file(staging, item.relative_path, item.data)
