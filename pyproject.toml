@@ -30,7 +30,6 @@ classifiers = [
 Homepage = "https://github.com/darizae/repomix-static-reconstructor"
 Repository = "https://github.com/darizae/repomix-static-reconstructor"
 Issues = "https://github.com/darizae/repomix-static-reconstructor/issues"
-Changelog = "https://github.com/darizae/repomix-static-reconstructor/blob/main/CHANGELOG.md"
 
 [project.scripts]
 unmix-repomix = "repomix_static_reconstructor.extractor:main"
