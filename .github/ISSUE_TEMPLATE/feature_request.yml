@@ -1,0 +1,47 @@
+name: Feature request
+description: Propose a new capability or improvement for repomix-unmixer
+title: "[Feature] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The project is a **private, pre-release** reconstructor for static,
+        offline inspection. Requests should respect the safety and
+        no-execution contract in [README.md](../../README.md) and
+        [SECURITY.md](../../SECURITY.md).
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / motivation
+      description: What need does this address, and for whom?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: Concrete, observable behavior and CLI/API surface you would expect.
+    validations:
+      required: true
+  - type: textarea
+    id: safety
+    attributes:
+      label: Safety / scope implications
+      description: |
+        How does this interact with the no-recovered-code-execution boundary,
+        the static-only goal, and the documented exclusion/security model? Note
+        anything that would require executing recovered content or network
+        access.
+  - type: input
+    id: backlog
+    attributes:
+      label: Related backlog ID (optional)
+      description: e.g. P1-05. See `docs/BACKLOG.md`.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Confirmation
+      options:
+        - label: I understand the project's static-only, no-execution contract
+        - label: This request does not assume executing recovered code or network access by the extractor

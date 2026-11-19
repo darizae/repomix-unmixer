@@ -26,17 +26,22 @@ pip install -e .            # or: pip install -e ".[dev]"
 
 ## Running the checks
 
-All of these must pass for a PR to merge; CI enforces the same commands.
+Run every applicable check **locally** — the project currently operates with
+GitHub Actions quota exhausted, so CI is not relied on for validation. Put
+`[skip ci]` in commit messages so existing push/PR workflows are skipped, and
+never claim a check passed that you did not actually run. A skipped required
+CI check stays **Pending**; report it as such, not as a pass.
 
 ```bash
 python -m unittest discover -s tests -v        # tests
 ruff check src tests && ruff format --check src tests   # lint + format
 mypy src/repomix_unmixer          # types
-python -m build && python -m twine check dist/*         # packaging
+python -m build && python -m twine check dist/*         # packaging (when distribution-affecting)
 ```
 
 Pinned tool versions used in CI: ruff 0.17.5, mypy 1.19.1, build 1.6.1,
-twine 6.2.0.
+twine 6.2.0. If a tool is not installed locally, record the check as
+**deferred** rather than passing.
 
 ## Pull requests
 
@@ -48,6 +53,10 @@ twine 6.2.0.
    genuinely satisfied, `docs/RELEASE_CHECKLIST.md`.
 5. PR descriptions state what changed, how it was verified, and any
    limitations. Never mark a task done based only on a proposed plan.
+6. Do not force-push. Because `main` requires strict CI checks that remain
+   Pending while Actions quota is exhausted, a maintainer may need to merge
+   locally-reviewed work after temporarily adjusting branch protection; the
+   settings are always restored immediately afterward.
 
 ## Security issues
 
