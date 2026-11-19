@@ -56,7 +56,7 @@ Python 3.10+ (tested 3.10–3.13 on Linux, macOS, and Windows in CI).
 
 ## How do I report a security problem?
 
-See [`SECURITY.md`](SECURITY.md) for the reporting channel and what to
+See [`SECURITY.md`](../SECURITY.md) for the reporting channel and what to
 include. Do not open public issues with exploitable details.
 
 ## How is this different from just unzipping or reverse-engineering a repo?
