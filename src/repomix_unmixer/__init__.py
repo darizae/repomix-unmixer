@@ -8,7 +8,7 @@ paths or contents.
 
 from __future__ import annotations
 
-from repomix_static_reconstructor.extractor import (
+from repomix_unmixer.extractor import (
     DEFAULT_MAX_FILE_MIB,
     DEFAULT_MAX_FILES,
     DEFAULT_MAX_INPUT_MIB,

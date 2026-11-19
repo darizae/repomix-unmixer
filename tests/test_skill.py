@@ -16,7 +16,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-SKILL_DIR = Path(__file__).resolve().parents[1] / "skills" / "repomix-static-reconstructor"
+SKILL_DIR = Path(__file__).resolve().parents[1] / "skills" / "repomix-unmixer"
 SKILL_MD = SKILL_DIR / "SKILL.md"
 
 FRONTMATTER_RE = re.compile(r"\A---\r?\n(?P<body>.*?)\r?\n---\r?\n", re.DOTALL)
@@ -36,11 +36,11 @@ def _frontmatter() -> dict[str, str]:
 class SkillStructureTests(unittest.TestCase):
     def test_skill_md_exists_in_named_directory(self):
         self.assertTrue(SKILL_MD.is_file())
-        self.assertEqual(SKILL_DIR.name, "repomix-static-reconstructor")
+        self.assertEqual(SKILL_DIR.name, "repomix-unmixer")
 
     def test_frontmatter_fields(self):
         fields = _frontmatter()
-        self.assertEqual(fields.get("name"), "repomix-static-reconstructor")
+        self.assertEqual(fields.get("name"), "repomix-unmixer")
         # Spec: name is lowercase letters, numbers, and hyphens (<= 64 chars).
         self.assertLessEqual(len(fields["name"]), 64)
         self.assertLessEqual(len(fields["description"]), 1024)

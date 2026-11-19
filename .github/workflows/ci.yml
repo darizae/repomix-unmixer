@@ -49,7 +49,7 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install mypy==1.19.1
-      - run: mypy src/repomix_static_reconstructor
+      - run: mypy src/repomix_unmixer
 
   skill:
     name: Agent Skills validation
@@ -66,7 +66,7 @@ jobs:
       - name: Install official skills-ref validator
         run: pip install "skills-ref @ git+https://github.com/agentskills/agentskills.git#subdirectory=skills-ref"
       - name: Run official validator
-        run: skills-ref validate skills/repomix-static-reconstructor
+        run: skills-ref validate skills/repomix-unmixer
       - name: Run skill structure tests
         run: |
           pip install --quiet skills-ref
@@ -126,7 +126,7 @@ jobs:
           assert len(wheels) == 1, wheels
           with zipfile.ZipFile(wheels[0]) as z:
               names = z.namelist()
-          expected_pkg = {n for n in names if n.startswith('repomix_static_reconstructor/')}
+          expected_pkg = {n for n in names if n.startswith('repomix_unmixer/')}
           assert expected_pkg, names
           strays = [n for n in names if n.startswith(('scripts/', 'tests/', 'docs/', 'repomix-files/'))]
           assert not strays, f'unexpected files in wheel: {strays}'
@@ -147,7 +147,7 @@ jobs:
           test ! -e smoke-out
           .smoke-venv/bin/unmix-repomix smoke.md ./smoke-out
           test "$(cat smoke-out/smoke.txt)" = "content"
-          .smoke-venv/bin/pip uninstall -y repomix-static-reconstructor
+          .smoke-venv/bin/pip uninstall -y repomix-unmixer
           ! command -v .smoke-venv/bin/unmix-repomix >/dev/null 2>&1 || test ! -e .smoke-venv/bin/unmix-repomix
           rm -rf .smoke-venv smoke.md smoke-out
       - name: Upload artifacts
