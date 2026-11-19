@@ -22,7 +22,7 @@ Read `README.md`, `SECURITY.md`, `docs/BACKLOG.md` and `docs/RELEASE_CHECKLIST.m
 
 ## Execution and privacy boundaries
 
-This repository contains a trusted **extractor** and may handle untrusted **Repomix inputs/outputs**. You may run its tests and the scripts in `scripts/`. Do **not** run, import, build, test, install, lint or otherwise execute any files produced from Repomix exports. Do not contact endpoints referenced in extracted code or run its Git hooks, containers, package managers, MCP configurations or scripts.
+This repository contains a trusted **extractor** and may handle untrusted **Repomix inputs/outputs**. You may run its tests and the bootstrap script in `scripts/`. Do **not** run, import, build, test, install, lint or otherwise execute any files produced from Repomix exports. Do not contact endpoints referenced in extracted code or run its Git hooks, containers, package managers, MCP configurations or scripts.
 
 Preserve recovered filenames and parsed text. The tool uses deliberate high-risk file exclusions, path/resource constraints, offline operation and static-only handling. Output can still contain secrets. Do not publicly upload recovered inputs or outputs. Never recursively delete arbitrary user paths or overwrite existing output folders.
 
