@@ -16,20 +16,37 @@ This is an early-stage, private-first tool. It is **not** a public release, a co
 
 ## Quick start (Python 3.10+)
 
+Install from a checkout (PyPI publication is not yet approved):
+
+```bash
+pip install .
+```
+
+That provides two console commands:
+
+- `unmix-repomix` — reconstruct a single export (Markdown, XML, or JSON).
+- `reconstruct-all` — batch every `.md` export in a folder.
+
 Place your own Repomix Markdown files in `repomix-files/`. That folder is empty in the distributed bundle.
 
 ```bash
-python3 scripts/reconstruct_all.py --dry-run
-python3 scripts/reconstruct_all.py
+reconstruct-all --dry-run
+reconstruct-all
 ```
 
 The driver creates `reconstructed/<export-stem>/` and a `reconstructed/RECONSTRUCTION_REPORT.md`. Existing per-export output folders are not overwritten. Never run commands from inside a reconstructed folder.
 
-Single input (Markdown, XML, or JSON):
+Single input:
 
 ```bash
-python3 scripts/unmix_repomix.py ./repo-export.md ./my-static-copy --dry-run
-python3 scripts/unmix_repomix.py ./repo-export.md ./my-static-copy
+unmix-repomix ./repo-export.md ./my-static-copy --dry-run
+unmix-repomix ./repo-export.md ./my-static-copy
+```
+
+Without installation, run from a checkout with `PYTHONPATH=src`:
+
+```bash
+PYTHONPATH=src python3 -m repomix_static_reconstructor.extractor ./repo-export.md ./my-static-copy --dry-run
 ```
 
 The CLI has **no overwrite command**. To reconstruct again, choose a new output directory; manually remove old generated files only after verifying their contents.
@@ -62,4 +79,4 @@ The script requires local GitHub CLI authorization to the `darizae` account and 
 
 ## Repository roadmap
 
-Start with [`docs/AGENT_HANDOFF.md`](docs/AGENT_HANDOFF.md) for no-placeholder setup of the new private **`darizae/repomix-static-reconstructor`** remote, [`docs/BACKLOG.md`](docs/BACKLOG.md) for tasks, and [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md) for the release gates. Agent behavior is defined in [`AGENTS.md`](AGENTS.md). The agent usage guide is in [`SKILL.md`](SKILL.md). Branding, logo assets, packaging into a conventional `pip`-installable CLI, multi-agent skill adapters, and website/docs design are **planned, not implemented**.
+Start with [`docs/AGENT_HANDOFF.md`](docs/AGENT_HANDOFF.md) for no-placeholder setup of the new private **`darizae/repomix-static-reconstructor`** remote, [`docs/BACKLOG.md`](docs/BACKLOG.md) for tasks, and [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md) for the release gates. Agent behavior is defined in [`AGENTS.md`](AGENTS.md). The agent usage guide is in [`SKILL.md`](SKILL.md). The package is now pip-installable from a checkout (`pip install .`) with `unmix-repomix`/`reconstruct-all` console commands. Multi-agent skill adapters, branding, and website/docs design are **planned, not implemented**.

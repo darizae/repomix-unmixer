@@ -12,10 +12,10 @@ import re
 import sys
 from pathlib import Path
 
-from unmix_repomix import UnmixError, UnmixResult, unmix_repomix
+from repomix_static_reconstructor.extractor import UnmixError, UnmixResult, unmix_repomix
 
 
-BUNDLE_ROOT = Path(__file__).resolve().parent.parent
+BUNDLE_ROOT = Path(__file__).resolve().parent.parent.parent
 DEFAULT_INPUT_DIR = BUNDLE_ROOT / "repomix-files"
 DEFAULT_OUTPUT_DIR = BUNDLE_ROOT / "reconstructed"
 

@@ -16,9 +16,9 @@ for cmd in git gh python3; do
   command -v "$cmd" >/dev/null 2>&1 || fail "Missing required command: $cmd"
 done
 
-[[ -f docs/BACKLOG.md && -f docs/AGENT_HANDOFF.md && -f scripts/unmix_repomix.py ]] || fail 'Run from the repository root.'
+[[ -f docs/BACKLOG.md && -f docs/AGENT_HANDOFF.md && -f src/repomix_static_reconstructor/extractor.py ]] || fail 'Run from the repository root.'
 [[ -f repomix-files/.gitkeep ]] || fail 'Missing empty input directory marker.'
-for directory in repomix-files scripts tests docs; do
+for directory in repomix-files scripts tests docs src/repomix_static_reconstructor; do
   [[ -d "$directory" && ! -L "$directory" ]] || fail "Missing or symlinked project directory: $directory"
 done
 
@@ -63,9 +63,15 @@ fi
 
 # Explicit allowlist. Never use `git add .` or `git add -A` during initial setup.
 allowed=(
-  .gitignore README.md AGENTS.md SKILL.md SECURITY.md
+  .gitignore README.md AGENTS.md SKILL.md SECURITY.md pyproject.toml
   docs/AGENT_HANDOFF.md docs/BACKLOG.md docs/RELEASE_CHECKLIST.md
-  scripts/bootstrap_private_github.sh scripts/unmix_repomix.py scripts/reconstruct_all.py
+  scripts/bootstrap_private_github.sh
+  src/repomix_static_reconstructor/__init__.py
+  src/repomix_static_reconstructor/__main__.py
+  src/repomix_static_reconstructor/batch.py
+  src/repomix_static_reconstructor/cli.py
+  src/repomix_static_reconstructor/extractor.py
+  src/repomix_static_reconstructor/py.typed
   tests/test_extractor.py repomix-files/.gitkeep
 )
 for f in "${allowed[@]}"; do
