@@ -26,7 +26,7 @@ mypy src/repomix_unmixer
 `twine check` requires `packaging>=24.2` to accept the PEP 639
 `License-Expression: MIT` metadata. Verify the wheel/sdist contents (MIT
 `LICENSE`, `py.typed`, both console entry points, README) and install each
-archive into a fresh venv as described in `tests`/`docs/AGENT_INSTALL.md`.
+archive into a fresh venv as described in [`AGENT_INSTALL.md`](AGENT_INSTALL.md).
 
 ## 2. Artifact checksums
 
