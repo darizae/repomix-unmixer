@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc" viewBox="0 0 960 230">
+<title id="title">repomix-unmixer extraction workflow</title>
+<desc id="desc">Repomix export flows through format parsing, path and resource validation, then new staged directories. Reconstructed files are for static inspection only.</desc>
+<rect width="960" height="230" rx="28" fill="#0B1220"/>
+<g font-family="ui-sans-serif, system-ui, sans-serif" text-anchor="middle">
+ <rect x="26" y="50" width="233" height="120" rx="16" fill="#1A2A44" stroke="#556A89" stroke-width="2"/>
+ <text x="142" y="96" font-size="22" fill="#F8FAFC" font-weight="700">Repomix export</text>
+ <text x="142" y="129" font-size="15" fill="#B7C9DD">Markdown · XML · JSON</text>
+ <path d="M274 109h63m-10-9 10 9-10 9" stroke="#65E5C8" stroke-width="3" fill="none" stroke-linecap="round"/>
+ <rect x="353" y="50" width="254" height="120" rx="16" fill="#1A2A44" stroke="#556A89" stroke-width="2"/>
+ <text x="480" y="91" font-size="20" fill="#F8FAFC" font-weight="700">Validate + stage</text>
+ <text x="480" y="121" font-size="15" fill="#B7C9DD">Paths · collisions · limits</text>
+ <text x="480" y="146" font-size="14" fill="#65E5C8">No execution</text>
+ <path d="M622 109h60m-10-9 10 9-10 9" stroke="#65E5C8" stroke-width="3" fill="none" stroke-linecap="round"/>
+ <rect x="698" y="50" width="236" height="120" rx="16" fill="#163338" stroke="#43897A" stroke-width="2"/>
+ <text x="816" y="96" font-size="22" fill="#F8FAFC" font-weight="700">Static file tree</text>
+ <text x="816" y="129" font-size="15" fill="#C2EFE6">New destination only</text>
+ <text x="480" y="203" font-size="13" fill="#AEC0D5">Recovered source stays untrusted. Inspect as text; do not run it.</text>
+</g>
+</svg>
