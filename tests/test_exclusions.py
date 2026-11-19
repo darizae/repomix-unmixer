@@ -15,7 +15,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-from repomix_static_reconstructor.extractor import (
+from repomix_unmixer.extractor import (
     UnmixError,
     exclusion_category,
     unmix_repomix,
@@ -231,7 +231,7 @@ class ExclusionExtractionTests(unittest.TestCase):
             [
                 sys.executable,
                 "-m",
-                "repomix_static_reconstructor.cli",
+                "repomix_unmixer.cli",
                 str(self.input),
                 str(self.output),
                 "--dry-run",

@@ -33,7 +33,7 @@ def distribution_version() -> str:
     """Return the installed distribution version, or a fallback."""
     if _package_version is not None:
         try:
-            return _package_version("repomix-static-reconstructor")
+            return _package_version("repomix-unmixer")
         except PackageNotFoundError:
             pass
     return "0.0.0+unknown"

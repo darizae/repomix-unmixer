@@ -4,7 +4,7 @@ Read `README.md`, `SECURITY.md`, `docs/BACKLOG.md`, `docs/RELEASE_CHECKLIST.md`,
 
 ## Working on a task
 
-1. Work in the trusted clone of `darizae/repomix-static-reconstructor`. Verify `origin`, check `main` is current, and read the requested backlog task. Do not reinitialize GitHub or create a new remote.
+1. Work in the trusted clone of `darizae/repomix-unmixer`. Verify `origin`, check `main` is current, and read the requested backlog task. Do not reinitialize GitHub or create a new remote.
 2. Create a scope-specific branch. Update code/docs and add regression tests for behavioral changes; do not implement unrelated tasks.
 3. Run the trusted extractor tests (`python3 -m unittest discover -s tests -v`) and applicable lint, type, build, docs and CI checks. Run only what is available; describe unavailable checks as **deferred**, not passed.
 4. Inspect `git status` and staged changes for unexpected files. Update `docs/BACKLOG.md` with evidence and `docs/RELEASE_CHECKLIST.md` only for satisfied gates.

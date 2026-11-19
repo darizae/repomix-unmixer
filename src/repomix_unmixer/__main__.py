@@ -2,7 +2,7 @@
 
 import sys
 
-from repomix_static_reconstructor.cli import main
+from repomix_unmixer.cli import main
 
 if __name__ == "__main__":
     sys.exit(main())
