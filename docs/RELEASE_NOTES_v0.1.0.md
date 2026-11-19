@@ -59,8 +59,8 @@ python3 -m venv .venv
 Re-hash the exact artifacts you publish; these record the local candidate build.
 
 ```
-48c4e16bd1111e90cd5340845fcd4072ae320f64f6d96ed20919b6939244a62e  repomix_unmixer-0.1.0-py3-none-any.whl
-7f7423909056297daff1ef6cd0247643e07dca0a09ba4c8f166d16d844532ef8  repomix_unmixer-0.1.0.tar.gz
+e698a628139dac750dbb3c7b8ba99857778543f5e6ab0dab3586152d0589fb47  repomix_unmixer-0.1.0-py3-none-any.whl
+044081d14db574f837d1c6f2ec05e84a894895ede24f0616689bb77f60c75ba8  repomix_unmixer-0.1.0.tar.gz
 ```
 
 ## Blocking items remaining before publication
