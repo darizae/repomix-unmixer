@@ -3,6 +3,12 @@
     <source media="(prefers-color-scheme: dark)" srcset="assets/brand/wordmark-dark.svg">
     <img src="assets/brand/wordmark-light.svg" alt="repomix-unmixer logo" width="530">
   </picture>
+  <p>
+    <a href="https://pypi.org/project/repomix-unmixer/"><img src="https://img.shields.io/pypi/v/repomix-unmixer.svg?color=blue" alt="PyPI version"></a>
+    <a href="https://pypi.org/project/repomix-unmixer/"><img src="https://img.shields.io/pypi/pyversions/repomix-unmixer.svg?color=blue" alt="Python versions"></a>
+    <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
+    <a href="https://www.agentskills.in/marketplace?author=darizae"><img src="https://img.shields.io/badge/Agent%20Skill-indexed-brightgreen.svg" alt="Agent Skill indexed in the Agent Skills marketplace"></a>
+  </p>
 </div>
 
 # repomix-unmixer
@@ -99,4 +105,4 @@ Read [Security](SECURITY.md), [static inspection](docs/STATIC_INSPECTION.md), [p
 
 [Docs preview](docs/site/README.md) · [FAQ](docs/FAQ.md) · [Agent Skill](skills/repomix-unmixer/SKILL.md) · [Contributing](CONTRIBUTING.md) · [Backlog](docs/BACKLOG.md) · [Release checklist](docs/RELEASE_CHECKLIST.md)
 
-**Status:** private pre-release, [MIT-licensed](LICENSE). No PyPI release is claimed. Public release requires completion of the remaining security and provenance checks.
+**Status:** v0.1.0 published — available on [PyPI](https://pypi.org/project/repomix-unmixer/), [MIT-licensed](LICENSE), with an [Agent Skill](https://www.agentskills.in/marketplace?author=darizae) indexed in the Agent Skills marketplace.
