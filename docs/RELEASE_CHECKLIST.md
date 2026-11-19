@@ -24,10 +24,10 @@ See `docs/BACKLOG.md` for task IDs. GitHub remote: `darizae/repomix-unmixer` (**
 - [x] **repomix-unmixer** naming and repo/package/CLI identifiers accepted by maintainer (2026-11-19). No further naming review.
 - [x] Create `pyproject.toml`, `src/` layout, console entrypoint, version command, wheel/sdist — P0-13: setuptools src/ layout, `unmix-repomix`/`reconstruct-all` entry points, `--version`, wheel+sdist build with `twine check` PASSED
 - [x] Clean environment installation, uninstall, and pinned supported Python-version tests — P0-13/P0-14: clean-venv install (wheel and sdist), single-export + batch smoke, uninstall verified locally; CI matrix runs Python 3.10–3.13 on ubuntu/macos/windows with the full test suite
-- [x] Portable Agent Skill validates against the official specification (P0-15), including CI structure tests.
-- [ ] Execute host-specific installation smoke tests for Claude Code, Codex, Cursor, Gemini CLI and OpenCode (P1-08; deferred).
+- [x] Portable Agent Skill validates against the official specification (P0-15) — 2026-11-19 Phase C: `agentskills validate` → "Valid skill" (skills-ref 0.1.1); installed CLI commands asserted against the built wheel/sdist; no-execute contract enforced (`tests/test_no_execution.py`).
+- [ ] Execute host-specific installation smoke tests for Claude Code, Codex, Cursor, Gemini CLI and OpenCode (P1-08; **deferred** — interactive in-host discovery would invoke model APIs and modify personal agent config; installed versions and per-host install paths recorded in `docs/AGENT_INSTALL.md`).
 - [ ] **Conditional, not mandatory:** add host wrappers only where real host testing proves portability insufficient.
-- [x] Document installation, offline operation, safety limits, parser coverage and FAQ; add agent setup prompt (P0-16/P1-03).
+- [x] Document installation, offline operation, safety limits, parser coverage and FAQ; add agent setup prompt (P0-16/P1-03); agent validation + per-host install notes in `docs/AGENT_INSTALL.md` (Phase C).
 - [ ] **Deferred / non-blocking:** optional authentic demo capture and independent README rendering review; current README accepted.
 
 ## Brand / open-source polish
@@ -41,8 +41,9 @@ See `docs/BACKLOG.md` for task IDs. GitHub remote: `darizae/repomix-unmixer` (**
 
 ## Quality and publication
 - [x] CI quality gates: lint, types, tests across supported OS/Python versions, build/install checks — PR #8 completed successfully with all 14 jobs including Python 3.10 on Windows.
-- [ ] **Best-effort release prep:** lightweight dependency maintenance and supply-chain documentation; no GitHub Actions runs. Provenance automation optional.
+- [x] **Best-effort release prep:** lightweight dependency maintenance and supply-chain documentation; no GitHub Actions runs — Phase D: `.github/dependabot.yml` (pip, low-dependency runtime), `docs/PUBLISHING.md`. Provenance automation optional.
 - [x] **P1-10** (2026-11-19): `CHANGELOG.md` (Keep a Changelog, v0.1.0 candidate); `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1, enforcement contact = maintainer GitHub `darizae`/SECURITY channel, no invented email); bug/feature issue forms + `config.yml` (parse OK, blank issues disabled, security routed to SECURITY.md); `pull_request_template.md`; `CONTRIBUTING.md` revised for local-validation/`[skip ci]`. All links exist.
-- [ ] **P0-17:** local artifacts, v0.1.0 notes, checksums; release/tag only when blocking gates pass (release plan Phase E).
+- [x] **P0-17 prep (Phase D, 2026-11-19):** PyPI `repomix-unmixer` name verified **unregistered**; `publish-pypi.yml` committed but **not executed** (Trusted Publishing, `pypi` environment, `id-token: write` only, gated to `v*` tags/dispatch); wheel+sdist `twine check` PASSED (packaging ≥24.2); sha256 checksums computed; Agent Skill distribution + install docs (`docs/PUBLISHING.md`, `docs/AGENT_INSTALL.md`). **Manual pending tasks recorded:** PyPI pending-publisher creation and account steps are interactive and remain a maintainer action.
+- [ ] **P0-17:** v0.1.0 release notes + checksum file; release/tag only when blocking gates pass and maintainer approves (release plan Phase E).
 - [ ] Test install instructions with a new contributor; obtain maintainer approval to make public
-- [ ] **Prepare now:** verified PyPI metadata, Trusted Publisher configuration and Agent Skills distribution guide; **actual upload/listing gated**. Website remains deferred.
+- [ ] **Actual upload/listing gated:** PyPI upload, Agent Skill directory submission, and public visibility remain **on hold** until the final gate (P0-17) and maintainer approval. Website remains deferred.
