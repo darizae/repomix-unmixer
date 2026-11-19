@@ -6,7 +6,7 @@ project, so contributing works a little differently.
 ## Ground rules
 
 - **Never execute reconstructed output.** Tests and tooling run against the
-  trusted extractor in `src/repomix_static_reconstructor/`, never against
+  trusted extractor in `src/repomix_unmixer/`, never against
   recovered code. See [`docs/STATIC_INSPECTION.md`](docs/STATIC_INSPECTION.md).
 - **Never commit Repomix inputs or reconstructed trees.** `repomix-files/`
   and `reconstructed/` are git-ignored for a reason. Use synthetic fixtures
@@ -19,8 +19,8 @@ project, so contributing works a little differently.
 ## Development setup
 
 ```bash
-git clone git@github.com:darizae/repomix-static-reconstructor.git
-cd repomix-static-reconstructor
+git clone git@github.com:darizae/repomix-unmixer.git
+cd repomix-unmixer
 pip install -e .            # or: pip install -e ".[dev]"
 ```
 
@@ -31,7 +31,7 @@ All of these must pass for a PR to merge; CI enforces the same commands.
 ```bash
 python -m unittest discover -s tests -v        # tests
 ruff check src tests && ruff format --check src tests   # lint + format
-mypy src/repomix_static_reconstructor          # types
+mypy src/repomix_unmixer          # types
 python -m build && python -m twine check dist/*         # packaging
 ```
 

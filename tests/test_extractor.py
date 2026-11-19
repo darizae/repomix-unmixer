@@ -8,7 +8,7 @@ import unittest
 from pathlib import Path, PurePosixPath
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-from repomix_static_reconstructor.extractor import (
+from repomix_unmixer.extractor import (
     UnmixError,
     normalize_archive_path,
     parse_json,
@@ -321,7 +321,7 @@ class ExtractorTests(unittest.TestCase):
             + os.pathsep
             + env.get("PYTHONPATH", "")
         )
-        module = [sys.executable, "-m", "repomix_static_reconstructor.batch"]
+        module = [sys.executable, "-m", "repomix_unmixer.batch"]
         first = subprocess.run(
             [
                 *module,
@@ -581,6 +581,26 @@ class ExtractorTests(unittest.TestCase):
             # acceptable on non-Windows.
             with self.subTest(path=path), contextlib.suppress(UnmixError):
                 normalize_archive_path(path)
+
+
+class PackageMigrationTests(unittest.TestCase):
+    """Rename (P1-01) migration checks: new package path resolves, old does not."""
+
+    def test_new_package_imports(self):
+        import importlib
+
+        pkg = importlib.import_module("repomix_unmixer")
+        self.assertIsNotNone(pkg)
+        # Every public submodule resolves under the new package name.
+        for sub in ("extractor", "batch", "cli", "__main__"):
+            with self.subTest(sub=sub):
+                self.assertIsNotNone(importlib.import_module(f"repomix_unmixer.{sub}"))
+
+    def test_old_package_name_removed(self):
+        # The legacy package must no longer exist in the source tree, regardless
+        # of what the current interpreter may still have installed.
+        src_root = Path(__file__).resolve().parents[1] / "src"
+        self.assertFalse((src_root / "repomix_static_reconstructor").exists())
 
 
 if __name__ == "__main__":

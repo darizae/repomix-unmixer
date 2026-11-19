@@ -1,6 +1,6 @@
 # Release readiness checklist (not yet satisfied)
 
-See `docs/BACKLOG.md` for task IDs. GitHub remote: `darizae/repomix-static-reconstructor` (**private**). Public visibility requires explicit maintainer approval.
+See `docs/BACKLOG.md` for task IDs. GitHub remote: `darizae/repomix-unmixer` (**private**). Public visibility requires explicit maintainer approval.
 
 ## Repository hygiene
 - [ ] Rights and ownership approval; choose and include a LICENSE

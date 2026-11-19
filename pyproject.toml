@@ -3,7 +3,7 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "repomix-static-reconstructor"
+name = "repomix-unmixer"
 version = "0.1.0"
 description = "Reconstruct static file trees from Repomix exports without running recovered code"
 readme = "README.md"
@@ -27,23 +27,23 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/darizae/repomix-static-reconstructor"
-Repository = "https://github.com/darizae/repomix-static-reconstructor"
-Issues = "https://github.com/darizae/repomix-static-reconstructor/issues"
+Homepage = "https://github.com/darizae/repomix-unmixer"
+Repository = "https://github.com/darizae/repomix-unmixer"
+Issues = "https://github.com/darizae/repomix-unmixer/issues"
 
 [project.scripts]
-unmix-repomix = "repomix_static_reconstructor.extractor:main"
-reconstruct-all = "repomix_static_reconstructor.batch:main"
+unmix-repomix = "repomix_unmixer.extractor:main"
+reconstruct-all = "repomix_unmixer.batch:main"
 
 [project.optional-dependencies]
 dev = ["build", "twine"]
 
 [tool.setuptools]
 package-dir = { "" = "src" }
-packages = ["repomix_static_reconstructor"]
+packages = ["repomix_unmixer"]
 
 [tool.setuptools.package-data]
-repomix_static_reconstructor = ["py.typed"]
+repomix_unmixer = ["py.typed"]
 
 [tool.ruff]
 target-version = "py310"
@@ -74,7 +74,7 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 # package __init__ re-exports intentionally grouped by module of origin
-"src/repomix_static_reconstructor/__init__.py" = ["I001", "RUF022"]
+"src/repomix_unmixer/__init__.py" = ["I001", "RUF022"]
 
 [tool.mypy]
 python_version = "3.10"

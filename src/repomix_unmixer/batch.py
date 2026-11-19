@@ -12,7 +12,7 @@ import re
 import sys
 from pathlib import Path
 
-from repomix_static_reconstructor.extractor import (
+from repomix_unmixer.extractor import (
     UnmixError,
     UnmixResult,
     unmix_repomix,
