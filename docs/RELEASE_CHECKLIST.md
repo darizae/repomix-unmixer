@@ -25,7 +25,7 @@ See `docs/BACKLOG.md` for task IDs. GitHub target: `darizae/repomix-static-recon
 - [x] Document installation, offline operation, limitations, screenshots, comparison, and FAQ — P0-16: README covers install (`pip install .`), CLI usage, offline operation, and accurate limitations; `docs/FAQ.md` added; `docs/STATIC_INSPECTION.md` added with outbound-network-isolation recommendation and the execution/auto-fetch side-effect caution. Screenshots and comparison table remain P1 branding tasks (P1-03/P2-03).
 
 ## Brand / open-source polish
-- [ ] Choose visual identity: name, tagline, color/type palette, icon/logo in SVG and PNG
+- [x] Choose visual identity: name, tagline, color/type palette, icon/logo in SVG and PNG — P1-01/P1-02: initial repomix-unmixer identity, vector and raster assets; final clearance deferred
 - [ ] Verify logo/name aren't confusingly similar to Repomix or other brands; indicate independent project
 - [ ] README hero, CLI terminal demo/GIF, concise feature matrix, security model illustration
 - [ ] Branded docs website or lightweight landing page and social-preview image
