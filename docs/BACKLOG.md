@@ -33,7 +33,7 @@ Reconstruct files for **static, offline inspection only**. Preserve supported pa
 
 | ID | Status | Task | Definition of done |
 |---|---|---|---|
-| P1-01 | To do | Product naming and positioning | Choose memorable name/repo slug/PyPI name and tagline; compare reverse-Repomix projects and clearly explain static-only/no-execution benefits |
+| P1-01 | **Implemented; verify** | Product naming and positioning | Working identity **RepoUnfold** and tagline documented in `docs/BRAND.md`; package, CLI and repository names remain stable. Compared existing unpacking tools and documented static-only differentiator. **Deferred:** independent trademark/name clearance and maintainer final approval before public release. |
 | P1-02 | To do | Brand identity | Professional original logo/icon, SVG master, PNG export, favicon, light/dark assets, accessible palette, typography and usage guidelines; respect Repomix trademark |
 | P1-03 | To do | Modern README presentation | Hero/logo/banner, feature highlights, quick install, CLI demo/GIF, security/limitations section, comparison table, badges once CI is real |
 | P1-04 | To do | Documentation site and social cards | Polished responsive landing page/docs, copy-paste examples, architecture and safety diagram, Open Graph preview image, mobile accessibility checks |
