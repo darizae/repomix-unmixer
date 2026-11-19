@@ -463,6 +463,25 @@ def normalize_archive_path(file_path: str) -> PurePosixPath:
         ):
             raise UnmixError(f"Windows alternate data stream not allowed: {file_path!r}")
 
+        # Cross-platform consistency: NTFS and the Win32 API silently strip
+        # leading/trailing whitespace and trailing dots from a filename, so two
+        # distinct-looking components can alias to one file on Windows. Reject
+        # them everywhere rather than risk a platform-dependent collision that
+        # the case-insensitive collision preflight cannot see.
+        if part != part.strip():
+            raise UnmixError(
+                f"Unsafe/ambiguous path component has surrounding whitespace: {file_path!r}"
+            )
+        if part.endswith("."):
+            raise UnmixError(f"Windows-incompatible path component ends in a dot: {file_path!r}")
+
+        # Windows reserved device names (CON, PRN, AUX, NUL, COM1-9, LPT1-9)
+        # cannot be created faithfully as files on Windows even with an
+        # extension, so reject them on every platform to keep behavior uniform.
+        base_name = part.split(".", 1)[0].upper()
+        if base_name in WINDOWS_RESERVED_NAMES:
+            raise UnmixError(f"Windows reserved device-name component: {file_path!r}")
+
     return PurePosixPath(*raw_parts)
 
 
@@ -568,8 +587,11 @@ def ensure_safe_parent_dirs(root: Path, relative_path: PurePosixPath) -> None:
         current = current / part
         if current.is_symlink():
             raise UnmixError(f"Symlink directory component is not allowed: {current}")
-        with contextlib.suppress(FileExistsError):
-            current.mkdir(mode=0o755)
+        try:
+            with contextlib.suppress(FileExistsError):
+                current.mkdir(mode=0o755)
+        except OSError as exc:
+            raise UnmixError(f"Failed to create output directory {current}: {exc}") from exc
         if current.is_symlink() or not current.is_dir():
             raise UnmixError(f"Unsafe or non-directory parent path: {current}")
         resolved = current.resolve(strict=True)
@@ -676,15 +698,21 @@ def unmix_repomix(
     import shutil
     import tempfile
 
-    root.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        root.parent.mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        raise UnmixError(f"Failed to create output parent directory {root.parent}: {exc}") from exc
     if root.exists() or root.is_symlink():
         raise UnmixError(f"Output appeared after preflight: {root}")
-    # Create staging directory with restricted permissions
-    import stat
 
-    staging = Path(tempfile.mkdtemp(prefix=f".{root.name}.tmp-", dir=root.parent))
-    # Set restrictive permissions (700) for staging directory
-    staging.chmod(stat.S_IRWXU)
+    staging: Path | None = None
+    try:
+        # Create staging directory with restricted permissions (0700) so the
+        # partially-written tree is not world-readable while it is being built.
+        staging = Path(tempfile.mkdtemp(prefix=f".{root.name}.tmp-", dir=root.parent))
+        staging.chmod(stat.S_IRWXU)
+    except OSError as exc:
+        raise UnmixError(f"Failed to create staging directory in {root.parent}: {exc}") from exc
     # Additional symlink check after staging directory creation
     if any(part.is_symlink() for part in staging.parents):
         raise UnmixError(f"Staging directory parent contains symlink: {staging}")
@@ -695,9 +723,12 @@ def unmix_repomix(
             raise UnmixError(f"Output appeared during reconstruction: {root}")
         # os.rename must be audited for concurrent manipulation; the CLI
         # is currently intended for trusted local output directories.
-        staging.rename(root)
+        try:
+            staging.rename(root)
+        except OSError as exc:
+            raise UnmixError(f"Failed to move staged output into place: {exc}") from exc
     except Exception:
-        if staging.exists():
+        if staging is not None and staging.exists():
             shutil.rmtree(staging)
         raise
 
