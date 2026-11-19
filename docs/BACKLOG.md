@@ -21,11 +21,11 @@ Reconstruct files for **static, offline inspection only**. Preserve supported pa
 | P0-09 | **To do** | Filesystem threat model and independent review | Audit symlink and hardlink races, TOCTOU, temporary directory permissions, ancestor symlinks, Windows path rules and rename semantics; adversarial tests pass |
 | P0-10 | **To do** | Repomix parser fidelity using actual generated fixtures | Test Markdown/XML/JSON from supported Repomix versions; XML entity escapes, line endings, BOM, malformed data, inline fences, ambiguous entries; document lossy cases |
 | P0-11 | **To do** | Strengthen adversarial and cross-platform tests | Run on Linux/macOS/Windows; property/fuzz tests, permission failures, partial-write injection, limits, symlink trees, huge inputs and invalid UTF-8 |
-| P0-12 | **To do** | Decide exclusion policy and publish clear semantics | Safety-based skipped `.mcp.json`, `.env*`, agent/IDE folders defined and tested; scope justified; optional `--strict` policy ONLY if preserves safety invariants |
+| P0-12 | **To do** | Decide exclusion policy and publish clear semantics | Safety-based skipped `.mcp.json`, `.env*`, agent/IDE folders defined and tested; scope justified; document that exclusions affect only extracted output, not the original packed input, and neither artifact is automatically safe to publish; optional `--strict` policy ONLY if preserves safety invariants |
 | P0-13 | **To do** | Packaging plan and distributable CLI | `pyproject.toml`, `src/` package, stable import APIs/entrypoint, `--version`, wheel/sdist, clean install/uninstall, tested command across platforms |
 | P0-14 | **To do** | CI and automated release checks | Unit/test matrix Python and OS; lint/format/type checks; build + wheel smoke test; least-privilege workflows and artifact inspection |
 | P0-15 | **To do** | Portable Agent Skill validation | Validate frontmatter/body using official Agent Skills validator; installed-context commands and no-execute contract verified |
-| P0-16 | **To do** | Docs, security and reporting ready for outsiders | Installation, FAQ, accurate threat model, reporting channel, support policy, no misleading guarantee, contribution instructions |
+| P0-16 | **To do** | Docs, security and reporting ready for outsiders | Installation, FAQ, accurate threat model, reporting channel, support policy, no misleading guarantee, contribution instructions; add a static-inspection guide recommending outbound-network isolation when available and cautioning against commands with execution or auto-fetch side effects (installers, build/test tools, hooks, containers, agent integrations) on recovered code |
 | P0-17 | **To do** | Complete `v0.1.0` public-release gates | Every required `docs/RELEASE_CHECKLIST.md` item reviewed, branch protection and license added, versioned release and maintainer approval before changing visibility |
 | P0-18 | **Implemented; verify** | Self-contained agent handoff and release planning | `docs/BACKLOG.md`, `docs/AGENT_HANDOFF.md`, `docs/RELEASE_CHECKLIST.md`, root `AGENTS.md` and private bootstrap script included in the same ZIP; no separate downloaded document needed |
 
@@ -44,7 +44,7 @@ Reconstruct files for **static, offline inspection only**. Preserve supported pa
 | P1-09 | To do | Build/release supply-chain hygiene | Automated dependency updates, secret scanning, artifact checksums, trusted publisher/PyPI identity, provenance and signatures where practical |
 | P1-10 | To do | Contributor experience | CONTRIBUTING, CHANGELOG, issue/PR templates, coding standards, maintainers/ownership, good-first-issues, optional CODE_OF_CONDUCT |
 | P1-11 | To do | Performance and memory budget | Memory/time benchmarks for large exports, streaming possibilities, no catastrophic regex, explicit limits |
-| P1-12 | To do | No-execution verification | Document threat boundary and add static checks verifying no subprocess/network imports or recovered-code execution in core paths |
+| P1-12 | To do | No-execution verification | Document threat boundary and add checks verifying the extractor does not invoke external commands, initiate outbound network requests, or execute recovered content; cover the risks of indirect execution through external tools in agent guidance |
 
 ### P2 — After a stable release
 
