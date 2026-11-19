@@ -31,4 +31,4 @@ reconstruct-all --dry-run
 reconstruct-all
 ```
 
-After reconstruction, use **read-only file inspection**. Supported formats are Markdown, XML (default and `--parsable-style`), and JSON. Line-numbered exports are rejected as lossy; plain-text exports are unsupported. Report unsupported formats instead of guessing or executing recovered code. Read `docs/PARSER_COMPATIBILITY.md` for fidelity limits and `SECURITY.md` for the current threat model.
+After reconstruction, use **read-only file inspection**. Supported formats are Markdown, XML (default and `--parsable-style`), and JSON. Line-numbered exports are rejected as lossy; plain-text exports are unsupported. Report unsupported formats instead of guessing or executing recovered code. Read `docs/PARSER_COMPATIBILITY.md` for fidelity limits, `docs/STATIC_INSPECTION.md` for how to inspect without side effects, and `SECURITY.md` for the current threat model.

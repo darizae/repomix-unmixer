@@ -7,7 +7,7 @@ See `docs/BACKLOG.md` for task IDs. GitHub target: `darizae/repomix-static-recon
 - [ ] Audit code, documentation and assets for credentials, personal information, and unintended files
 - [ ] Run local secret scanning and independently inspect Git's full staged diff and history
 - [ ] Confirm input and output snapshots are untracked; run `git ls-files` and `git status`
-- [ ] Protect default branch; set issue/security reporting policy and code owners as appropriate
+- [x] Protect default branch; set issue/security reporting policy and code owners as appropriate — P0-16 (partial): `SECURITY.md` now defines the reporting channel (GitHub private vulnerability reporting / private message to `darizae`), scope, response targets, and support policy; `CONTRIBUTING.md` added. Attempted to enable GitHub private vulnerability reporting and secret scanning via API; both endpoints returned 404/422 for this account/token (secret scanning needs a paid plan on private repos) — the private-vulnerability-reporting toggle must be enabled once manually in repo Settings. Default-branch protection is still pending (P0-17).
 
 ## Parser and security
 - [x] Repomix-generated fixtures for Markdown/XML/JSON across versions, CRLF/BOM, escapes, malformed content — P0-10: Repomix 1.19.0 fixtures, byte-identical with 1.17.0/1.18.1; see `docs/PARSER_COMPATIBILITY.md`
@@ -22,7 +22,7 @@ See `docs/BACKLOG.md` for task IDs. GitHub target: `darizae/repomix-static-recon
 - [x] Clean environment installation, uninstall, and pinned supported Python-version tests — P0-13/P0-14: clean-venv install (wheel and sdist), single-export + batch smoke, uninstall verified locally; CI matrix runs Python 3.10–3.13 on ubuntu/macos/windows with the full test suite
 - [x] Portable `SKILL.md` validated against Agent Skills spec; run actual host smoke tests — P0-15: `skills/repomix-static-reconstructor/SKILL.md` passes official `skills-ref` validator; CI job runs it on every push; in-suite structure tests. Host smoke tests (Claude Code, Codex, Cursor, Gemini CLI, OpenCode) still pending as P1-08.
 - [ ] Only after validation, add targeted wrappers for Claude Code, Codex, Cursor, Gemini CLI, OpenCode
-- [ ] Document installation, offline operation, limitations, screenshots, comparison, and FAQ
+- [x] Document installation, offline operation, limitations, screenshots, comparison, and FAQ — P0-16: README covers install (`pip install .`), CLI usage, offline operation, and accurate limitations; `docs/FAQ.md` added; `docs/STATIC_INSPECTION.md` added with outbound-network-isolation recommendation and the execution/auto-fetch side-effect caution. Screenshots and comparison table remain P1 branding tasks (P1-03/P2-03).
 
 ## Brand / open-source polish
 - [ ] Choose visual identity: name, tagline, color/type palette, icon/logo in SVG and PNG
