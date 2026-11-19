@@ -1,0 +1,137 @@
+name: CI
+
+# Least privilege by default; jobs opt in to what they need.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions: {}
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FORCE_COLOR: "1"
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  lint:
+    name: Lint (ruff)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install ruff==0.17.5
+      - run: ruff check src tests
+      - run: ruff format --check src tests
+
+  typecheck:
+    name: Types (mypy)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install mypy==1.19.1
+      - run: mypy src/repomix_static_reconstructor
+
+  tests:
+    name: Tests (py${{ matrix.python }} / ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python: ["3.10", "3.11", "3.12", "3.13"]
+        exclude:
+          # Trim the matrix a little; keep every OS x newest/oldest pairing.
+          - os: macos-latest
+            python: "3.11"
+          - os: windows-latest
+            python: "3.11"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Run unit tests
+        env:
+          PYTHONPATH: src
+        run: python -m unittest discover -s tests -v
+
+  build:
+    name: Build, inspect, wheel smoke test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    needs: [lint, typecheck, tests]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install "build==1.6.1" "twine==6.2.0"
+      - name: Build sdist and wheel
+        run: python -m build
+      - name: twine check
+        run: twine check dist/*
+      - name: Inspect artifacts
+        run: |
+          python - <<'PY'
+          import glob, zipfile
+          wheels = glob.glob('dist/*.whl')
+          assert len(wheels) == 1, wheels
+          with zipfile.ZipFile(wheels[0]) as z:
+              names = z.namelist()
+          expected_pkg = {n for n in names if n.startswith('repomix_static_reconstructor/')}
+          assert expected_pkg, names
+          strays = [n for n in names if n.startswith(('scripts/', 'tests/', 'docs/', 'repomix-files/'))]
+          assert not strays, f'unexpected files in wheel: {strays}'
+          scripts = [n for n in names if n.endswith('entry_points.txt')]
+          assert scripts, names
+          with zipfile.ZipFile(wheels[0]) as z:
+              entry_points = z.read(scripts[0]).decode()
+          assert 'unmix-repomix' in entry_points and 'reconstruct-all' in entry_points, entry_points
+          print('wheel OK:', len(names), 'files')
+          PY
+      - name: Wheel smoke test (clean venv)
+        run: |
+          python -m venv .smoke-venv
+          .smoke-venv/bin/pip install dist/*.whl
+          .smoke-venv/bin/unmix-repomix --version
+          printf '## File: smoke.txt\n```\ncontent\n```\n' > smoke.md
+          .smoke-venv/bin/unmix-repomix smoke.md ./smoke-out --dry-run
+          test ! -e smoke-out
+          .smoke-venv/bin/unmix-repomix smoke.md ./smoke-out
+          test "$(cat smoke-out/smoke.txt)" = "content"
+          .smoke-venv/bin/pip uninstall -y repomix-static-reconstructor
+          ! command -v .smoke-venv/bin/unmix-repomix >/dev/null 2>&1 || test ! -e .smoke-venv/bin/unmix-repomix
+          rm -rf .smoke-venv smoke.md smoke-out
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: distributions
+          path: dist/
+          retention-days: 7

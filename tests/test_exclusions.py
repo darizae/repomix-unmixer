@@ -15,7 +15,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-from repomix_static_reconstructor.extractor import (  # noqa: E402
+from repomix_static_reconstructor.extractor import (
     UnmixError,
     exclusion_category,
     unmix_repomix,
@@ -117,7 +117,9 @@ class ExclusionExtractionTests(unittest.TestCase):
     def run_files(self, files, input_file=None, output_dir=None, **kwargs):
         input_path = Path(input_file) if input_file else self.input
         output_path = Path(output_dir) if output_dir else self.output
-        input_path.write_text(markdown(files), encoding="utf-8")
+        # newline="" keeps the fixture bytes identical on every platform; text
+        # mode would otherwise translate \n to \r\n on Windows.
+        input_path.write_text(markdown(files), encoding="utf-8", newline="")
         return unmix_repomix(input_path, output_path, **kwargs)
 
     def test_retained_content_is_unchanged_and_excluded_paths_are_absent(self):
@@ -145,11 +147,23 @@ class ExclusionExtractionTests(unittest.TestCase):
             ("nested/.DS_Store", "metadata"),
         ]
         excluded = {
-            ".env", ".env.local", "nested/.env.production", ".env.example.local",
-            ".envrc", ".mcp.json", ".claude/settings.json", ".claude/.env.example",
-            ".cursor/mcp.json", ".codex/config.toml", ".gemini/settings.json",
-            ".opencode/config.json", ".vscode/tasks.json", ".idea/workspace.xml",
-            ".git/config", ".DS_Store", "nested/.DS_Store",
+            ".env",
+            ".env.local",
+            "nested/.env.production",
+            ".env.example.local",
+            ".envrc",
+            ".mcp.json",
+            ".claude/settings.json",
+            ".claude/.env.example",
+            ".cursor/mcp.json",
+            ".codex/config.toml",
+            ".gemini/settings.json",
+            ".opencode/config.json",
+            ".vscode/tasks.json",
+            ".idea/workspace.xml",
+            ".git/config",
+            ".DS_Store",
+            "nested/.DS_Store",
         }
         retained = {path: content for path, content in files if path not in excluded}
 
@@ -176,11 +190,13 @@ class ExclusionExtractionTests(unittest.TestCase):
         for name, serializer in (("export.xml", xml), ("export.json", json_export)):
             with self.subTest(format=name):
                 source = self.root / name
-                source.write_text(serializer(files), encoding="utf-8")
+                source.write_text(serializer(files), encoding="utf-8", newline="")
                 target = self.root / f"out-{name}"
                 result = unmix_repomix(source, target)
                 self.assertEqual(result.extracted, ("keep.txt", ".env.example"))
-                self.assertEqual(set(result.skipped), {".mcp.json", ".env", ".vscode/settings.json"})
+                self.assertEqual(
+                    set(result.skipped), {".mcp.json", ".env", ".vscode/settings.json"}
+                )
                 self.assertEqual((target / "keep.txt").read_text(), "keep")
                 self.assertEqual((target / ".env.example").read_text(), "SECRET=")
                 self.assertFalse((target / ".mcp.json").exists())
@@ -203,12 +219,23 @@ class ExclusionExtractionTests(unittest.TestCase):
         self.assertFalse(self.output.exists())
 
     def test_cli_reports_exclusion_category(self):
-        self.input.write_text(markdown([(".mcp.json", "{}"), ("keep.txt", "y")]), encoding="utf-8")
+        self.input.write_text(
+            markdown([(".mcp.json", "{}"), ("keep.txt", "y")]),
+            encoding="utf-8",
+            newline="",
+        )
         src = Path(__file__).resolve().parents[1] / "src"
         env = dict(os.environ)
         env["PYTHONPATH"] = str(src) + os.pathsep + env.get("PYTHONPATH", "")
         completed = subprocess.run(
-            [sys.executable, "-m", "repomix_static_reconstructor.cli", str(self.input), str(self.output), "--dry-run"],
+            [
+                sys.executable,
+                "-m",
+                "repomix_static_reconstructor.cli",
+                str(self.input),
+                str(self.output),
+                "--dry-run",
+            ],
             capture_output=True,
             text=True,
             env=env,

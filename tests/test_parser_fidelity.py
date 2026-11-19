@@ -8,7 +8,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-from repomix_static_reconstructor.extractor import (  # noqa: E402
+from repomix_static_reconstructor.extractor import (
     UnmixError,
     detect_format,
     parse_markdown,
@@ -17,11 +17,12 @@ from repomix_static_reconstructor.extractor import (  # noqa: E402
     unmix_repomix,
 )
 
-
 FIXTURES = Path(__file__).resolve().parent / "fixtures" / "repomix-1.19.0"
 
 EXPECTED_MAIN_CONTENT = {
-    "README.md": "# Fixture README\n\nSynthetic repository used to validate Repomix reconstruction.",
+    "README.md": (
+        "# Fixture README\n\nSynthetic repository used to validate Repomix reconstruction."
+    ),
     "docs/ambiguous.md": (
         "## File: not-a-real-entry.txt\n"
         "```text\n"
@@ -131,7 +132,7 @@ class RepomixFixtureTests(unittest.TestCase):
         format_type, entries = parse_fixture("edge/xml-parsable/repomix-output.xml")
         self.assertEqual(format_type, "xml")
         contents = {entry.original_path: entry.content for entry in entries}
-        self.assertEqual(contents["amp&quote\"name.txt"], "weird path")
+        self.assertEqual(contents['amp&quote"name.txt'], "weird path")
         self.assertEqual(contents["ends-fence.md"], "text ending with `````")
         self.assertEqual(contents["trailing-spaces.md"], "before\n`````  \nafter")
 
