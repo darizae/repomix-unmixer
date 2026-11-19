@@ -56,6 +56,7 @@ Do not open public issues for security problems. Follow
 
 ## Licensing
 
-The project has no license yet (P0-07 is an open release gate). By
-contributing you agree your work will be released under the license the
-maintainer eventually selects, or you can decline and not contribute.
+This project is licensed under the [MIT License](LICENSE). By contributing,
+you agree your contribution may be distributed under MIT. Contribute only
+material you have the rights to submit. Public release still depends on
+completing the checks in `docs/RELEASE_CHECKLIST.md`.
