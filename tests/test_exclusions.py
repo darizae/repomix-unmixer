@@ -27,7 +27,9 @@ def markdown(files):
 
 
 def xml(files):
-    entries = "".join(f'<file path="{path}">\n{content}\n</file>\n' for path, content in files)
+    entries = "".join(
+        f'<file path="{path}">\n{content}\n</file>\n' for path, content in files
+    )
     return f"<files>\n{entries}</files>"
 
 
@@ -145,11 +147,23 @@ class ExclusionExtractionTests(unittest.TestCase):
             ("nested/.DS_Store", "metadata"),
         ]
         excluded = {
-            ".env", ".env.local", "nested/.env.production", ".env.example.local",
-            ".envrc", ".mcp.json", ".claude/settings.json", ".claude/.env.example",
-            ".cursor/mcp.json", ".codex/config.toml", ".gemini/settings.json",
-            ".opencode/config.json", ".vscode/tasks.json", ".idea/workspace.xml",
-            ".git/config", ".DS_Store", "nested/.DS_Store",
+            ".env",
+            ".env.local",
+            "nested/.env.production",
+            ".env.example.local",
+            ".envrc",
+            ".mcp.json",
+            ".claude/settings.json",
+            ".claude/.env.example",
+            ".cursor/mcp.json",
+            ".codex/config.toml",
+            ".gemini/settings.json",
+            ".opencode/config.json",
+            ".vscode/tasks.json",
+            ".idea/workspace.xml",
+            ".git/config",
+            ".DS_Store",
+            "nested/.DS_Store",
         }
         retained = {path: content for path, content in files if path not in excluded}
 
@@ -157,9 +171,13 @@ class ExclusionExtractionTests(unittest.TestCase):
 
         self.assertEqual(set(result.skipped), excluded)
         self.assertEqual(set(result.extracted), set(retained))
-        self.assertEqual(result.total_bytes, sum(len(text.encode()) for text in retained.values()))
+        self.assertEqual(
+            result.total_bytes, sum(len(text.encode()) for text in retained.values())
+        )
         for path, content in retained.items():
-            self.assertEqual((self.output / path).read_bytes(), content.encode("utf-8"), path)
+            self.assertEqual(
+                (self.output / path).read_bytes(), content.encode("utf-8"), path
+            )
         for path in excluded:
             self.assertFalse((self.output / path).exists(), path)
         self.assertFalse((self.output / ".claude").exists())
@@ -180,7 +198,9 @@ class ExclusionExtractionTests(unittest.TestCase):
                 target = self.root / f"out-{name}"
                 result = unmix_repomix(source, target)
                 self.assertEqual(result.extracted, ("keep.txt", ".env.example"))
-                self.assertEqual(set(result.skipped), {".mcp.json", ".env", ".vscode/settings.json"})
+                self.assertEqual(
+                    set(result.skipped), {".mcp.json", ".env", ".vscode/settings.json"}
+                )
                 self.assertEqual((target / "keep.txt").read_text(), "keep")
                 self.assertEqual((target / ".env.example").read_text(), "SECRET=")
                 self.assertFalse((target / ".mcp.json").exists())
@@ -194,7 +214,9 @@ class ExclusionExtractionTests(unittest.TestCase):
 
     def test_excluded_entries_still_count_against_file_limit(self):
         with self.assertRaises(UnmixError):
-            self.run_files([(".env", "x"), ("keep.txt", "y")], dry_run=True, max_files=1)
+            self.run_files(
+                [(".env", "x"), ("keep.txt", "y")], dry_run=True, max_files=1
+            )
         self.assertFalse(self.output.exists())
 
     def test_dry_run_reports_exclusions_without_writing(self):
@@ -203,12 +225,21 @@ class ExclusionExtractionTests(unittest.TestCase):
         self.assertFalse(self.output.exists())
 
     def test_cli_reports_exclusion_category(self):
-        self.input.write_text(markdown([(".mcp.json", "{}"), ("keep.txt", "y")]), encoding="utf-8")
+        self.input.write_text(
+            markdown([(".mcp.json", "{}"), ("keep.txt", "y")]), encoding="utf-8"
+        )
         src = Path(__file__).resolve().parents[1] / "src"
         env = dict(os.environ)
         env["PYTHONPATH"] = str(src) + os.pathsep + env.get("PYTHONPATH", "")
         completed = subprocess.run(
-            [sys.executable, "-m", "repomix_static_reconstructor.cli", str(self.input), str(self.output), "--dry-run"],
+            [
+                sys.executable,
+                "-m",
+                "repomix_static_reconstructor.cli",
+                str(self.input),
+                str(self.output),
+                "--dry-run",
+            ],
             capture_output=True,
             text=True,
             env=env,
