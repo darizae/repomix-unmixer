@@ -6,13 +6,16 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path, PurePosixPath
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from repomix_unmixer.extractor import (
     UnmixError,
+    ensure_safe_parent_dirs,
     normalize_archive_path,
     parse_json,
     parse_xml,
+    safe_write_file,
     unmix_repomix,
 )
 
@@ -52,7 +55,9 @@ class ExtractorTests(unittest.TestCase):
     def test_dry_run_does_not_write(self):
         result = self.run_files([("src/a.txt", "hi")], dry_run=True)
         self.assertEqual(result.extracted, ("src/a.txt",))
+        # Dry run must create neither the output tree nor any staging directory.
         self.assertFalse(self.output.exists())
+        self.assertFalse(any(p.name.startswith(".out.tmp-") for p in self.root.iterdir()))
 
     def test_skips_unsafe_agent_metadata_without_rewriting(self):
         res = self.run_files(
@@ -175,11 +180,45 @@ class ExtractorTests(unittest.TestCase):
         )
 
     def test_toctou_injection_during_staging(self):
-        """Test that concurrent filesystem changes during staging are detected."""
-        # Test that we properly handle race conditions where files appear
-        # between preflight checks and actual writing
-        # Since reliable TOCTOU testing is difficult, we acknowledge the protection exists
-        # Placeholder acknowledging TOCTOU protection
+        """O_EXCL create-only writes refuse a file that appears after preflight."""
+        # A target that did not exist during preflight but appears before the
+        # write must never be overwritten. Simulate it inside a fresh staging
+        # directory and prove safe_write_file refuses rather than clobbers.
+        staging = self.root / ".out.tmp-x"
+        staging.mkdir()
+        injected = staging / "a.txt"
+        injected.write_text("attacker", encoding="utf-8")
+        with self.assertRaises(UnmixError):
+            safe_write_file(staging, PurePosixPath("a.txt"), b"replacement")
+        self.assertEqual(injected.read_text(), "attacker")
+
+    def test_staging_cleanup_on_mid_write_failure(self):
+        """A failed reconstruction removes the staging directory and leaves no output."""
+        files = [
+            ("ok1.txt", "one"),
+            ("ok2.txt", "two"),
+            ("fail.txt", "three"),
+        ]
+        self.input.write_text(markdown(files), newline="")
+        output = self.root / "cleanup_out"
+
+        real_safe_write_file = safe_write_file
+
+        def flaky_write(root, relative_path, data):
+            if relative_path.as_posix() == "fail.txt":
+                raise UnmixError("simulated write failure")
+            return real_safe_write_file(root, relative_path, data)
+
+        with (
+            mock.patch("repomix_unmixer.extractor.safe_write_file", side_effect=flaky_write),
+            self.assertRaises(UnmixError),
+        ):
+            unmix_repomix(self.input, output)
+
+        # No final output and no leftover staging directory in the parent.
+        self.assertFalse(output.exists())
+        leftover = [p for p in self.root.iterdir() if p.name.startswith(".cleanup_out.tmp-")]
+        self.assertEqual(leftover, [])
 
     def test_cross_platform_path_validation(self):
         # Test various problematic paths that should be rejected
@@ -368,14 +407,16 @@ class ExtractorTests(unittest.TestCase):
         self.assertEqual((output / "demo/src/file.txt").read_text(), "content")
 
     def test_permission_denied_during_extraction(self):
-        """Test that permission errors during file extraction are properly handled."""
-        # Test that we handle permission errors gracefully when they occur during file operations
-        # Rather than trying to force permission errors, we test that the error handling works
-        # by mocking a scenario where os.open raises PermissionError
-
-        # Since it's difficult to reliably trigger permission errors in a cross-platform way,
-        # we trust that the underlying code properly handles OSError exceptions from os.open
-        # Placeholder - actual testing would require more sophisticated mocking
+        """A write into a non-writable directory raises UnmixError, not a traceback."""
+        if os.geteuid() == 0:
+            self.skipTest("running as root; permission checks are not enforced")
+        read_only = self.root / "read_only"
+        read_only.mkdir(mode=0o555)
+        try:
+            with self.assertRaises(UnmixError):
+                safe_write_file(read_only, PurePosixPath("x.txt"), b"data")
+        finally:
+            read_only.chmod(0o755)
 
     def test_read_only_output_directory(self):
         """Test extraction fails when output directory is read-only."""
@@ -389,11 +430,16 @@ class ExtractorTests(unittest.TestCase):
         self.assertIn("already exists", str(cm.exception).lower())
 
     def test_permission_denied_parent_directory(self):
-        """Test extraction fails when parent directory creation is denied."""
-        # Since triggering actual permission errors consistently across platforms is complex,
-        # we trust that the underlying code properly handles OSError exceptions from mkdir
-        # This is a placeholder acknowledging that such error handling exists
-        # Placeholder - actual testing would require more sophisticated mocking
+        """mkdir failure on a parent directory surfaces as a clean UnmixError."""
+        if os.geteuid() == 0:
+            self.skipTest("running as root; permission checks are not enforced")
+        read_only = self.root / "ro_parent"
+        read_only.mkdir(mode=0o555)
+        try:
+            with self.assertRaises(UnmixError):
+                ensure_safe_parent_dirs(read_only, PurePosixPath("sub/file.txt"))
+        finally:
+            read_only.chmod(0o755)
 
     def test_partial_write_injection_scenarios(self):
         """Test that partial writes don't leave files in inconsistent states."""
@@ -434,31 +480,56 @@ class ExtractorTests(unittest.TestCase):
             self.run_files(huge_files, max_input_bytes=1024 * 1024 * 100)  # 100MB limit
         self.assertIn("exceeding input limit", str(cm.exception))
 
-    def test_memory_constraint_simulation(self):
-        """Test behavior under memory constraints."""
-        # Create many large files to test memory usage
-        large_content = "x" * (1024 * 1024 * 10)  # 10MB per file
-        many_large_files = [(f"large_file_{i}.txt", large_content) for i in range(50)]
-
-        # Should hit file count or total size limits
+    def test_file_count_boundary(self):
+        """max_files is enforced at the boundary: exactly at limit passes, over fails."""
+        # One more than the limit fails during preflight, before any write.
+        over_limit = [(f"f{i}.txt", "x") for i in range(4)]
         with self.assertRaises(UnmixError):
-            self.run_files(
-                many_large_files,
-                max_files=10,  # Only allow 10 files
-                max_total_bytes=1024 * 1024 * 100,
-            )  # 100MB total limit
+            self.run_files(over_limit, max_files=3, dry_run=True)
+        self.assertFalse(self.output.exists())
+        # Exactly max_files files succeed.
+        at_limit = [(f"f{i}.txt", "x") for i in range(3)]
+        result = self.run_files(at_limit, max_files=3)
+        self.assertEqual(len(result.extracted), 3)
 
     def test_complex_symlink_tree_scenarios(self):
-        """Test extraction behavior with complex symlink structures."""
-        # Acknowledge that symlink validation exists in the codebase
-        # Detailed testing requires more sophisticated setup
-        # Placeholder for symlink validation testing
+        """A symlinked parent component is rejected and nothing is written outside."""
+        outside = self.root / "outside"
+        outside.mkdir()
+        # out/a -> outside, then request a/file.txt. The preflight must reject
+        # the symlinked directory and write nothing into `outside`.
+        out = self.output
+        out.mkdir()
+        (out / "a").symlink_to(outside, target_is_directory=True)
+        with self.assertRaises(UnmixError):
+            self.run_files([("a/file.txt", "content")], dry_run=True)
+        self.assertEqual(list(outside.iterdir()), [])
 
     def test_deeply_nested_symlink_chains(self):
-        """Test behavior with deeply nested symlink chains."""
-        # Acknowledge that symlink validation exists in the codebase
-        # Detailed testing requires more sophisticated setup
-        # Placeholder for symlink validation testing
+        """Deeply nested symlinked parents are all rejected before any write."""
+        outside = self.root / "outside"
+        outside.mkdir()
+        out = self.output
+        out.mkdir()
+        # Build a/b/c where `b` is a symlink to outside; c is real under b's target.
+        (out / "a").mkdir()
+        (out / "a" / "b").symlink_to(outside, target_is_directory=True)
+        (outside / "c").mkdir()
+        with self.assertRaises(UnmixError):
+            self.run_files([("a/b/c/deep.txt", "content")], dry_run=True)
+        self.assertFalse((outside / "c" / "deep.txt").exists())
+
+    def test_write_through_existing_symlink_target_refused(self):
+        """Writing through an existing symlink file target is refused."""
+        outside = self.root / "outside.txt"
+        outside.write_text("keep", encoding="utf-8")
+        staging = self.root / ".out.tmp-y"
+        staging.mkdir()
+        link = staging / "victim.txt"
+        link.symlink_to(outside)
+        with self.assertRaises(UnmixError):
+            safe_write_file(staging, PurePosixPath("victim.txt"), b"pwned")
+        self.assertEqual(outside.read_text(), "keep")
 
     def test_symlink_to_device_files(self):
         """Test extraction to paths that are symlinks to device files."""
@@ -581,6 +652,46 @@ class ExtractorTests(unittest.TestCase):
             # acceptable on non-Windows.
             with self.subTest(path=path), contextlib.suppress(UnmixError):
                 normalize_archive_path(path)
+
+    def test_windows_reserved_device_names_rejected(self):
+        # SECURITY.md and README promise Windows reserved device-name components
+        # are rejected; these must fail on every platform for uniform behavior.
+        for path in (
+            "CON",
+            "con.txt",
+            "NUL.log",
+            "PRN",
+            "AUX.dat",
+            "COM1.txt",
+            "lpt9.sys",
+            "dir/CON.md",
+            "nested/COM5/report.csv",
+        ):
+            with self.subTest(path=path), self.assertRaises(UnmixError):
+                normalize_archive_path(path)
+
+    def test_windows_aliasing_trailing_dot_and_whitespace_rejected(self):
+        # NTFS/Win32 strips trailing dots and trailing spaces from names, so
+        # these could alias with a differently-cased sibling on Windows. Reject
+        # them everywhere so the case-collision preflight cannot be bypassed.
+        for path in ("file.", "file.txt.", "dir./f.txt", "dir/ .hidden", "a.txt "):
+            with self.subTest(path=path), self.assertRaises(UnmixError):
+                normalize_archive_path(path)
+
+    def test_legitimate_names_still_accepted(self):
+        # Device-name look-alikes that are not reserved, and internal spaces,
+        # must keep working.
+        for path in (
+            "dir with space/file.txt",
+            "console.txt",
+            "printer.log",
+            "auxiliary.txt",
+            "COM1x.txt",
+            "confluence.md",
+            "normal_file.txt",
+        ):
+            with self.subTest(path=path):
+                self.assertIsInstance(normalize_archive_path(path), PurePosixPath)
 
 
 class PackageMigrationTests(unittest.TestCase):

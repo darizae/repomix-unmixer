@@ -21,7 +21,21 @@ This software reconstructs **untrusted text**. **It is not a sandbox**, a malwar
 
 ## Important unfinished security work
 
-No completed independent adversarial security review. Directory traversal through concurrent filesystem mutation, symlink races, `rename` behavior on different platforms, hardlinks, permission inheritance, and file types need comprehensive testing. Parser fidelity is verified for Repomix 1.17.0–1.19.0 in [`docs/PARSER_COMPATIBILITY.md`](docs/PARSER_COMPATIBILITY.md), but default Repomix XML is not well-formed and remains ambiguous for some content; use `--parsable-style` for untrusted or special-character-heavy exports. Do not describe this project as hardened, formally audited, confidential, or safe to execute.
+No completed **independent adversarial** security review has been performed.
+A maintainer/local-agent review (threat model, tested cases, residual risks)
+is recorded in [`docs/SECURITY_REVIEW.md`](docs/SECURITY_REVIEW.md). That review
+added regression tests for create-only writes, staging cleanup, permission
+failures, nested symlink chains, Windows reserved-name and trailing-dot
+aliasing rejection, and a static no-execution contract. Windows and Linux
+runtime behavior (including Windows reparse points) and any concurrent mutation
+of the output directory by a hostile actor are **not** yet verified and are
+documented as bounded or out of scope — the tool requires a trusted local
+output directory. Parser fidelity is verified for Repomix 1.17.0–1.19.0 in
+[`docs/PARSER_COMPATIBILITY.md`](docs/PARSER_COMPATIBILITY.md), but default
+Repomix XML is not well-formed and remains ambiguous for some content; use
+`--parsable-style` for untrusted or special-character-heavy exports. Do not
+describe this project as hardened, formally audited, confidential, or safe to
+execute.
 
 ## Output and privacy
 

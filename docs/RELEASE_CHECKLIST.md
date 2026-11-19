@@ -16,9 +16,9 @@ See `docs/BACKLOG.md` for task IDs. GitHub remote: `darizae/repomix-unmixer` (**
 ## Parser and security
 - [x] Repomix-generated fixtures for Markdown/XML/JSON across versions, CRLF/BOM, escapes, malformed content — P0-10: Repomix 1.19.0 fixtures, byte-identical with 1.17.0/1.18.1; see `docs/PARSER_COMPATIBILITY.md`
 - [x] Define exactly what is preserved and what is intentionally excluded — P0-12: `docs/EXCLUSIONS.md` defines component-exact rules, matching semantics, rationale, non-exclusions, and the no-`--strict` decision; `tests/test_exclusions.py` verifies them
-- [ ] Concurrent-filesystem threat model and symlink/race/hardlink audit
+- [x] Concurrent-filesystem threat model and symlink/race/hardlink audit — P0-09/P0-05 (2026-11-19): threat model and tested cases in `docs/SECURITY_REVIEW.md`; regression tests for O_EXCL create-only writes, staging cleanup, nested symlink chains, write-through-symlink, hardlinks, and permission failures. Windows/Linux runtime (reparse points) and hostile shared-directory races remain documented as bounded/deferred; independent external audit pending.
 - [x] Linux/macOS/Windows integration tests and failure-injection tests — P0-11: Added comprehensive adversarial tests covering permission failures, partial-write injection, resource limits, symlinks, invalid UTF-8, and cross-platform validation including macOS Bash 3.2 compatibility simulation
-- [ ] Check filesystem resource limits; test dry run's lack of writes
+- [x] Check filesystem resource limits; test dry run's lack of writes — P0-05 (2026-11-19): `max_files`/`max_file_bytes`/`max_total_bytes`/`max_input_bytes` enforced at boundaries (`test_limits_preflight`, `test_file_count_boundary`, `test_huge_input_file_rejection`); dry run creates neither the output tree nor any staging directory (`test_dry_run_does_not_write`).
 
 ## Packaging and agent integrations
 - [x] **repomix-unmixer** naming and repo/package/CLI identifiers accepted by maintainer (2026-11-19). No further naming review.
