@@ -1,13 +1,13 @@
 # Release readiness checklist (not yet satisfied)
 
-See `docs/BACKLOG.md` for task IDs. GitHub target: `darizae/repomix-static-reconstructor` (PRIVATE initially). Follow `docs/AGENT_HANDOFF.md` for private setup; public visibility requires explicit approval.
+See `docs/BACKLOG.md` for task IDs. GitHub remote: `darizae/repomix-static-reconstructor` (**private**). Public visibility requires explicit maintainer approval.
 
 ## Repository hygiene
 - [ ] Rights and ownership approval; choose and include a LICENSE
 - [ ] Audit code, documentation and assets for credentials, personal information, and unintended files
 - [ ] Run local secret scanning and independently inspect Git's full staged diff and history
 - [ ] Confirm input and output snapshots are untracked; run `git ls-files` and `git status`
-- [x] Protect default branch; set issue/security reporting policy and code owners as appropriate — P0-16 (partial): `SECURITY.md` now defines the reporting channel (GitHub private vulnerability reporting / private message to `darizae`), scope, response targets, and support policy; `CONTRIBUTING.md` added. Attempted to enable GitHub private vulnerability reporting and secret scanning via API; both endpoints returned 404/422 for this account/token (secret scanning needs a paid plan on private repos) — the private-vulnerability-reporting toggle must be enabled once manually in repo Settings. Default-branch protection is still pending (P0-17).
+- [ ] Protect default branch and verify GitHub security settings — `SECURITY.md` and `CONTRIBUTING.md` exist. Branch protection and the private-vulnerability-reporting toggle remain deferred; secret scanning is limited by the account plan.
 
 ## Parser and security
 - [x] Repomix-generated fixtures for Markdown/XML/JSON across versions, CRLF/BOM, escapes, malformed content — P0-10: Repomix 1.19.0 fixtures, byte-identical with 1.17.0/1.18.1; see `docs/PARSER_COMPATIBILITY.md`
@@ -20,19 +20,22 @@ See `docs/BACKLOG.md` for task IDs. GitHub target: `darizae/repomix-static-recon
 - [ ] Define stable product name, CLI name, package name and repository slug; verify availability
 - [x] Create `pyproject.toml`, `src/` layout, console entrypoint, version command, wheel/sdist — P0-13: setuptools src/ layout, `unmix-repomix`/`reconstruct-all` entry points, `--version`, wheel+sdist build with `twine check` PASSED
 - [x] Clean environment installation, uninstall, and pinned supported Python-version tests — P0-13/P0-14: clean-venv install (wheel and sdist), single-export + batch smoke, uninstall verified locally; CI matrix runs Python 3.10–3.13 on ubuntu/macos/windows with the full test suite
-- [x] Portable `SKILL.md` validated against Agent Skills spec; run actual host smoke tests — P0-15: `skills/repomix-static-reconstructor/SKILL.md` passes official `skills-ref` validator; CI job runs it on every push; in-suite structure tests. Host smoke tests (Claude Code, Codex, Cursor, Gemini CLI, OpenCode) still pending as P1-08.
+- [x] Portable Agent Skill validates against the official specification (P0-15), including CI structure tests.
+- [ ] Execute host-specific installation smoke tests for Claude Code, Codex, Cursor, Gemini CLI and OpenCode (P1-08; deferred).
 - [ ] Only after validation, add targeted wrappers for Claude Code, Codex, Cursor, Gemini CLI, OpenCode
-- [x] Document installation, offline operation, limitations, screenshots, comparison, and FAQ — P0-16: README covers install (`pip install .`), CLI usage, offline operation, and accurate limitations; `docs/FAQ.md` added; `docs/STATIC_INSPECTION.md` added with outbound-network-isolation recommendation and the execution/auto-fetch side-effect caution. Screenshots and comparison table remain P1 branding tasks (P1-03/P2-03).
+- [x] Document installation, offline operation, safety limits, parser coverage and FAQ; add agent setup prompt (P0-16/P1-03).
+- [ ] Record authentic terminal walkthrough GIF/capture and test README rendering (deferred).
 
 ## Brand / open-source polish
 - [x] Choose visual identity: name, tagline, color/type palette, icon/logo in SVG and PNG — P1-01/P1-02: initial repomix-unmixer identity, vector and raster assets; final clearance deferred
 - [ ] Verify logo/name aren't confusingly similar to Repomix or other brands; indicate independent project
-- [ ] README hero, CLI terminal demo/GIF, concise feature matrix, security model illustration
+- [x] README wordmark, concise feature set, CLI commands and safety links (P1-03).
+- [ ] Authentic demo GIF/capture and independent README visual review (deferred).
 - [ ] Branded docs website or lightweight landing page and social-preview image
 - [ ] Accessible dark/light variants, alt text, responsive layout, consistent iconography
 
 ## Quality and publication
-- [ ] CI quality gates: unit, formatting, types, tests on all platforms, build/install checks
+- [x] CI quality gates: lint, types, tests across supported OS/Python versions, build/install checks — PR #8 completed successfully with all 14 jobs including Python 3.10 on Windows.
 - [ ] Dependabot or equivalent maintenance, dependabot alerts, optional release provenance
 - [ ] CONTRIBUTING, CODE_OF_CONDUCT decision, issue templates, PR template, CHANGELOG
 - [ ] Versioning strategy, release notes, checksums, tags and release artifacts
