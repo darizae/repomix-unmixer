@@ -107,7 +107,7 @@ The parser preserves what Repomix emits, but the writer then omits a small, docu
 auto-activating agent/IDE configuration, credential-bearing environment files, `.git/`, and OS
 metadata paths. The exact rules, matching semantics, rationale, and explicit non-exclusions are
 in [`EXCLUSIONS.md`](EXCLUSIONS.md); the rules are implemented in
-`src/repomix_static_reconstructor/extractor.py`.
+`src/repomix_unmixer/extractor.py`.
 Exclusions affect only reconstructed output; the original export still contains the excluded
 data and neither artifact is automatically safe to publish.
 

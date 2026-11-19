@@ -47,14 +47,14 @@ Batch output appears in `reconstructed/`. The original export and any reconstruc
 
 ## Use it with an AI coding agent
 
-This repository includes a [portable Agent Skill](skills/repomix-static-reconstructor/SKILL.md). Agent-host integration is not yet verified on every platform (tracked as P1-08).
+This repository includes a [portable Agent Skill](skills/repomix-unmixer/SKILL.md). Agent-host integration is not yet verified on every platform (tracked as P1-08).
 
 **Agent setup prompt — copy and paste:**
 
 ```text
 Work in this trusted repomix-unmixer repository.
 Read AGENTS.md, SECURITY.md, and
-skills/repomix-static-reconstructor/SKILL.md.
+skills/repomix-unmixer/SKILL.md.
 
 Set up the Python CLI in an isolated environment from this trusted
 checkout, check --version and --help, and run only the included
@@ -90,6 +90,6 @@ Read [Security](SECURITY.md), [static inspection](docs/STATIC_INSPECTION.md), [p
 
 ## Documentation
 
-[Docs preview](docs/site/README.md) · [FAQ](docs/FAQ.md) · [Agent Skill](skills/repomix-static-reconstructor/SKILL.md) · [Contributing](CONTRIBUTING.md) · [Backlog](docs/BACKLOG.md) · [Release checklist](docs/RELEASE_CHECKLIST.md)
+[Docs preview](docs/site/README.md) · [FAQ](docs/FAQ.md) · [Agent Skill](skills/repomix-unmixer/SKILL.md) · [Contributing](CONTRIBUTING.md) · [Backlog](docs/BACKLOG.md) · [Release checklist](docs/RELEASE_CHECKLIST.md)
 
 **Status:** private pre-release. No public license has been selected and no PyPI release is claimed.

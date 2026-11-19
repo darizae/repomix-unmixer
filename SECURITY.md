@@ -30,8 +30,8 @@ File contents and paths are intentionally unchanged except for handling Repomix 
 ## Reporting a vulnerability
 
 **Channel:** GitHub private vulnerability reporting on
-`darizae/repomix-static-reconstructor`
-(<https://github.com/darizae/repomix-static-reconstructor/security/advisories/new>),
+`darizae/repomix-unmixer`
+(<https://github.com/darizae/repomix-unmixer/security/advisories/new>),
 or a direct private message to the maintainer `darizae` if that form is
 unavailable. Do **not** open a public issue with exploit details.
 
@@ -45,7 +45,7 @@ concept, affected platform, and your assessment of impact.
 - Coordinated disclosure preferred; we will agree on a disclosure timeline
   with you. Credit is given on request.
 
-**In scope:** the extractor and CLI in `src/repomix_static_reconstructor/`
+**In scope:** the extractor and CLI in `src/repomix_unmixer/`
 (path validation, staged writes, resource limits, exclusion policy), the
 packaging, and the agent skill instructions.
 

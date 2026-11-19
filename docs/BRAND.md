@@ -16,10 +16,9 @@ For developers, maintainers, and coding-agent workflows that need individual tex
 ## Naming and compatibility
 
 - Product/display name: **repomix-unmixer**.
-- Current GitHub repository: `darizae/repomix-static-reconstructor`.
-- Existing Python distribution and import paths remain unchanged to avoid breaking installed workflows.
-- Existing CLI commands remain `unmix-repomix` and `reconstruct-all`.
-- Renaming the repository, package or CLI requires a separate compatibility decision and migration tests.
+- GitHub repository: `darizae/repomix-unmixer`.
+- Python distribution and import path: `repomix_unmixer`.
+- CLI commands: `unmix-repomix` and `reconstruct-all`.
 - The project is independent of [Repomix](https://repomix.com/); it is not an official Repomix component.
 
 ## Landscape
