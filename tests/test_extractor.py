@@ -1,13 +1,14 @@
-from pathlib import Path, PurePosixPath
+import contextlib
 import json
 import os
 import subprocess
 import sys
 import tempfile
 import unittest
+from pathlib import Path, PurePosixPath
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-from repomix_static_reconstructor.extractor import (  # noqa: E402
+from repomix_static_reconstructor.extractor import (
     UnmixError,
     normalize_archive_path,
     parse_json,
@@ -40,9 +41,7 @@ class ExtractorTests(unittest.TestCase):
         literal = "package sample-name\nfunction ExampleFunction() {}"
         res = self.run_files([("OrgName/CaseSensitive.js", literal)])
         self.assertEqual(res.extracted, ("OrgName/CaseSensitive.js",))
-        self.assertEqual(
-            (self.output / "OrgName/CaseSensitive.js").read_text(), literal
-        )
+        self.assertEqual((self.output / "OrgName/CaseSensitive.js").read_text(), literal)
 
     def test_variable_fences(self):
         raw = "## File: a.md\n````\n```js\nconst x = 1\n```\n````\n"
@@ -102,9 +101,8 @@ class ExtractorTests(unittest.TestCase):
         ]
 
         for path in problematic_paths:
-            with self.subTest(path=path):
-                with self.assertRaises(UnmixError):
-                    normalize_archive_path(path)
+            with self.subTest(path=path), self.assertRaises(UnmixError):
+                normalize_archive_path(path)
 
     def test_existing_target_refused_untouched(self):
         self.output.mkdir()
@@ -116,9 +114,7 @@ class ExtractorTests(unittest.TestCase):
     def test_limits_preflight(self):
         for kwargs in [{"max_files": 1}, {"max_file_bytes": 2}, {"max_total_bytes": 2}]:
             with self.subTest(kwargs=kwargs), self.assertRaises(UnmixError):
-                self.run_files(
-                    [("a.txt", "hello"), ("b.txt", "world")], dry_run=True, **kwargs
-                )
+                self.run_files([("a.txt", "hello"), ("b.txt", "world")], dry_run=True, **kwargs)
 
     def test_symlink_race_conditions(self):
         # Test that symlinks in parent directories are rejected
@@ -175,8 +171,7 @@ class ExtractorTests(unittest.TestCase):
             self.run_files([("subdir/file.txt", "content")])
         # This should fail during parent directory creation check
         self.assertTrue(
-            "already exists" in str(cm.exception)
-            or "not a directory" in str(cm.exception)
+            "already exists" in str(cm.exception) or "not a directory" in str(cm.exception)
         )
 
     def test_toctou_injection_during_staging(self):
@@ -184,7 +179,7 @@ class ExtractorTests(unittest.TestCase):
         # Test that we properly handle race conditions where files appear
         # between preflight checks and actual writing
         # Since reliable TOCTOU testing is difficult, we acknowledge the protection exists
-        pass  # Placeholder acknowledging TOCTOU protection
+        # Placeholder acknowledging TOCTOU protection
 
     def test_cross_platform_path_validation(self):
         # Test various problematic paths that should be rejected
@@ -277,21 +272,15 @@ class ExtractorTests(unittest.TestCase):
             parse_xml('<root><file path="a.txt">\nhello\n</file></root>')[0].content,
             "hello",
         )
+        self.assertEqual(parse_json(json.dumps({"files": {"x.txt": "abc"}}))[0].content, "abc")
         self.assertEqual(
-            parse_json(json.dumps({"files": {"x.txt": "abc"}}))[0].content, "abc"
-        )
-        self.assertEqual(
-            parse_json(json.dumps({"files": [{"path": "x.txt", "content": "abc"}]}))[
-                0
-            ].content,
+            parse_json(json.dumps({"files": [{"path": "x.txt", "content": "abc"}]}))[0].content,
             "abc",
         )
 
     def test_xml_full_reconstruct(self):
         xml = self.root / "repo.xml"
-        xml.write_text(
-            '<files>\n<file path="src/main.py">\nprint(1)\n</file>\n</files>'
-        )
+        xml.write_text('<files>\n<file path="src/main.py">\nprint(1)\n</file>\n</files>')
         unmix_repomix(xml, self.output)
         self.assertEqual((self.output / "src/main.py").read_text(), "print(1)")
 
@@ -331,8 +320,14 @@ class ExtractorTests(unittest.TestCase):
         )
         module = [sys.executable, "-m", "repomix_static_reconstructor.batch"]
         first = subprocess.run(
-            module
-            + ["--input-dir", str(inp), "--output-dir", str(output), "--dry-run"],
+            [
+                *module,
+                "--input-dir",
+                str(inp),
+                "--output-dir",
+                str(output),
+                "--dry-run",
+            ],
             capture_output=True,
             text=True,
             env=env,
@@ -340,7 +335,13 @@ class ExtractorTests(unittest.TestCase):
         self.assertEqual(first.returncode, 0, first.stderr)
         self.assertFalse(output.exists())
         second = subprocess.run(
-            module + ["--input-dir", str(inp), "--output-dir", str(output)],
+            [
+                *module,
+                "--input-dir",
+                str(inp),
+                "--output-dir",
+                str(output),
+            ],
             capture_output=True,
             text=True,
             env=env,
@@ -349,7 +350,13 @@ class ExtractorTests(unittest.TestCase):
         self.assertEqual((output / "demo/src/file.txt").read_text(), "content")
         self.assertTrue((output / "RECONSTRUCTION_REPORT.md").exists())
         third = subprocess.run(
-            module + ["--input-dir", str(inp), "--output-dir", str(output)],
+            [
+                *module,
+                "--input-dir",
+                str(inp),
+                "--output-dir",
+                str(output),
+            ],
             capture_output=True,
             text=True,
             env=env,
@@ -365,7 +372,7 @@ class ExtractorTests(unittest.TestCase):
 
         # Since it's difficult to reliably trigger permission errors in a cross-platform way,
         # we trust that the underlying code properly handles OSError exceptions from os.open
-        pass  # Placeholder - actual testing would require more sophisticated mocking
+        # Placeholder - actual testing would require more sophisticated mocking
 
     def test_read_only_output_directory(self):
         """Test extraction fails when output directory is read-only."""
@@ -383,7 +390,7 @@ class ExtractorTests(unittest.TestCase):
         # Since triggering actual permission errors consistently across platforms is complex,
         # we trust that the underlying code properly handles OSError exceptions from mkdir
         # This is a placeholder acknowledging that such error handling exists
-        pass  # Placeholder - actual testing would require more sophisticated mocking
+        # Placeholder - actual testing would require more sophisticated mocking
 
     def test_partial_write_injection_scenarios(self):
         """Test that partial writes don't leave files in inconsistent states."""
@@ -442,13 +449,13 @@ class ExtractorTests(unittest.TestCase):
         """Test extraction behavior with complex symlink structures."""
         # Acknowledge that symlink validation exists in the codebase
         # Detailed testing requires more sophisticated setup
-        pass  # Placeholder for symlink validation testing
+        # Placeholder for symlink validation testing
 
     def test_deeply_nested_symlink_chains(self):
         """Test behavior with deeply nested symlink chains."""
         # Acknowledge that symlink validation exists in the codebase
         # Detailed testing requires more sophisticated setup
-        pass  # Placeholder for symlink validation testing
+        # Placeholder for symlink validation testing
 
     def test_symlink_to_device_files(self):
         """Test extraction to paths that are symlinks to device files."""
@@ -490,13 +497,10 @@ class ExtractorTests(unittest.TestCase):
         ]
 
         for path in problematic_paths:
-            with self.subTest(path=path):
-                try:
-                    # Should either accept these or reject them cleanly
-                    normalize_archive_path(path)
-                except UnmixError:
-                    # This is acceptable - rejecting problematic paths
-                    pass
+            # Should either accept these or reject them cleanly;
+            # rejecting problematic paths is acceptable.
+            with self.subTest(path=path), contextlib.suppress(UnmixError):
+                normalize_archive_path(path)
 
     def test_cross_platform_filename_normalization(self):
         """Test filename normalization across different platforms."""
@@ -570,13 +574,10 @@ class ExtractorTests(unittest.TestCase):
         ]
 
         for path in windows_reserved:
-            with self.subTest(path=path):
-                try:
-                    normalize_archive_path(path)
-                    # If it doesn't raise an error, that's acceptable on non-Windows
-                except UnmixError:
-                    # Rejecting these is the safer behavior
-                    pass
+            # Rejecting these is the safer behavior; acceptance is
+            # acceptable on non-Windows.
+            with self.subTest(path=path), contextlib.suppress(UnmixError):
+                normalize_archive_path(path)
 
 
 if __name__ == "__main__":

@@ -8,7 +8,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-from repomix_static_reconstructor.extractor import (  # noqa: E402
+from repomix_static_reconstructor.extractor import (
     UnmixError,
     detect_format,
     parse_markdown,
@@ -17,11 +17,12 @@ from repomix_static_reconstructor.extractor import (  # noqa: E402
     unmix_repomix,
 )
 
-
 FIXTURES = Path(__file__).resolve().parent / "fixtures" / "repomix-1.19.0"
 
 EXPECTED_MAIN_CONTENT = {
-    "README.md": "# Fixture README\n\nSynthetic repository used to validate Repomix reconstruction.",
+    "README.md": (
+        "# Fixture README\n\nSynthetic repository used to validate Repomix reconstruction."
+    ),
     "docs/ambiguous.md": (
         "## File: not-a-real-entry.txt\n"
         "```text\n"
@@ -89,15 +90,9 @@ class RepomixFixtureTests(unittest.TestCase):
     def test_format_detection_disambiguates_xml_from_markdown_headers(self) -> None:
         # The XML fixture's first file contains a line-start "## File:" header.
         self.assertEqual(detect_format(read_fixture("xml/repomix-output.xml")), "xml")
-        self.assertEqual(
-            detect_format(read_fixture("xml-parsable/repomix-output.xml")), "xml"
-        )
-        self.assertEqual(
-            detect_format(read_fixture("markdown/repomix-output.md")), "markdown"
-        )
-        self.assertEqual(
-            detect_format(read_fixture("json/repomix-output.json")), "json"
-        )
+        self.assertEqual(detect_format(read_fixture("xml-parsable/repomix-output.xml")), "xml")
+        self.assertEqual(detect_format(read_fixture("markdown/repomix-output.md")), "markdown")
+        self.assertEqual(detect_format(read_fixture("json/repomix-output.json")), "json")
 
     def test_first_structural_marker_wins_over_file_content(self) -> None:
         markdown = (
@@ -154,9 +149,7 @@ class RepomixFixtureTests(unittest.TestCase):
         ):
             with self.subTest(fixture=relative_path):
                 with self.assertRaises(UnmixError) as caught:
-                    unmix_repomix(
-                        FIXTURES / relative_path, self.root / "out", dry_run=True
-                    )
+                    unmix_repomix(FIXTURES / relative_path, self.root / "out", dry_run=True)
                 self.assertIn("line-number", str(caught.exception))
 
     def test_line_numbered_without_summary_is_detected_from_content(self) -> None:
@@ -178,15 +171,11 @@ class RepomixFixtureTests(unittest.TestCase):
 
     def test_bom_export_reconstructs_through_cli_path(self) -> None:
         source = self.root / "bom.md"
-        source.write_bytes(
-            b"\xef\xbb\xbf" + read_fixture("markdown/repomix-output.md").encode()
-        )
+        source.write_bytes(b"\xef\xbb\xbf" + read_fixture("markdown/repomix-output.md").encode())
         output = self.root / "out"
         result = unmix_repomix(source, output)
         self.assertEqual(result.format_type, "markdown")
-        self.assertEqual(
-            (output / "src/app.py").read_text(), EXPECTED_MAIN_CONTENT["src/app.py"]
-        )
+        self.assertEqual((output / "src/app.py").read_text(), EXPECTED_MAIN_CONTENT["src/app.py"])
 
     def test_crlf_export_structure_preserves_content_line_endings(self) -> None:
         markdown = "## File: a.txt\r\n```\r\nline1\r\nline2\r\n```\r\n"

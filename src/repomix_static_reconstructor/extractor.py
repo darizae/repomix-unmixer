@@ -11,6 +11,7 @@ Output is not guaranteed to be secret-free, runnable, or an exact Git backup.
 from __future__ import annotations
 
 import argparse
+import contextlib
 import json
 import math
 import os
@@ -143,7 +144,7 @@ def strip_one_line_ending(text: str) -> str:
     """Remove exactly one delimiter newline before a closing Repomix fence/tag."""
     if text.endswith("\r\n"):
         return text[:-2]
-    if text.endswith("\n") or text.endswith("\r"):
+    if text.endswith(("\n", "\r")):
         return text[:-1]
     return text
 
@@ -152,7 +153,7 @@ def strip_one_leading_line_ending(text: str) -> str:
     """Remove exactly one structural newline after a default-style XML tag."""
     if text.startswith("\r\n"):
         return text[2:]
-    if text.startswith("\n") or text.startswith("\r"):
+    if text.startswith(("\n", "\r")):
         return text[1:]
     return text
 
@@ -434,9 +435,7 @@ def normalize_archive_path(file_path: str) -> PurePosixPath:
     if "\n" in file_path or "\r" in file_path:
         raise UnmixError(f"Unsafe file path contains a newline: {file_path!r}")
     if file_path != file_path.strip():
-        raise UnmixError(
-            f"Unsafe/ambiguous file path has surrounding whitespace: {file_path!r}"
-        )
+        raise UnmixError(f"Unsafe/ambiguous file path has surrounding whitespace: {file_path!r}")
 
     windows_path = PureWindowsPath(file_path)
     if windows_path.is_absolute() or windows_path.drive or windows_path.root:
@@ -454,17 +453,15 @@ def normalize_archive_path(file_path: str) -> PurePosixPath:
         )
 
     for part in raw_parts:
-        if ":" in part:
-            # Enhanced colon validation for Windows alternate data streams
-            if ":" in part and part != ":":
-                # Allow paths like "C:/path" to be normalized to "C/path"
-                # but reject actual ADS like "file.txt:$DATA"
-                if part.count(":") > 1 or (
-                    part.count(":") == 1 and "$" in part.upper()
-                ):
-                    raise UnmixError(
-                        f"Windows alternate data stream not allowed: {file_path!r}"
-                    )
+        # Enhanced colon validation for Windows alternate data streams.
+        # Allow paths like "C:/path" to be normalized to "C/path",
+        # but reject actual ADS like "file.txt:$DATA".
+        if (
+            ":" in part
+            and part != ":"
+            and (part.count(":") > 1 or (part.count(":") == 1 and "$" in part.upper()))
+        ):
+            raise UnmixError(f"Windows alternate data stream not allowed: {file_path!r}")
 
     return PurePosixPath(*raw_parts)
 
@@ -476,9 +473,7 @@ def ensure_within_root(root: Path, candidate: Path, description: str) -> Path:
         resolved.relative_to(root.resolve(strict=False))
         return resolved
     except ValueError as exc:
-        raise UnmixError(
-            f"{description} escapes output directory: {candidate}"
-        ) from exc
+        raise UnmixError(f"{description} escapes output directory: {candidate}") from exc
 
 
 def check_existing_path_safety(
@@ -507,9 +502,7 @@ def check_existing_path_safety(
         if not stat.S_ISREG(target_stat.st_mode):
             raise UnmixError(f"Destination exists and is not a regular file: {target}")
         if target.resolve() == input_resolved:
-            raise UnmixError(
-                f"Refusing to overwrite the Repomix input file itself: {target}"
-            )
+            raise UnmixError(f"Refusing to overwrite the Repomix input file itself: {target}")
         raise UnmixError(f"Destination file already exists: {target}")
 
     # Hardlinked destinations are covered by the target.exists() rejection
@@ -528,9 +521,7 @@ def preflight_entries(
 ) -> tuple[list[PreparedEntry], list[str], int]:
     """Validate all paths, collisions, and limits before writing any output."""
     if len(entries) > max_files:
-        raise UnmixError(
-            f"Archive contains {len(entries)} files, exceeding {max_files}"
-        )
+        raise UnmixError(f"Archive contains {len(entries)} files, exceeding {max_files}")
 
     prepared: list[PreparedEntry] = []
     skipped: list[str] = []
@@ -549,13 +540,9 @@ def preflight_entries(
         # collisions and file/parent-directory conflicts.
         path_key = relative_path.as_posix().casefold()
         parts = relative_path.parts
-        parent_keys = {
-            "/".join(parts[:index]).casefold() for index in range(1, len(parts))
-        }
+        parent_keys = {"/".join(parts[:index]).casefold() for index in range(1, len(parts))}
         if path_key in seen or path_key in required_directories:
-            raise UnmixError(
-                f"Duplicate path or file/directory conflict: {entry.original_path!r}"
-            )
+            raise UnmixError(f"Duplicate path or file/directory conflict: {entry.original_path!r}")
         if seen.intersection(parent_keys):
             raise UnmixError(f"File/directory conflict at: {entry.original_path!r}")
         required_directories.update(parent_keys)
@@ -564,16 +551,12 @@ def preflight_entries(
         data = entry.content.encode("utf-8")
         size = len(data)
         if size > max_file_bytes:
-            raise UnmixError(
-                f"File {entry.original_path!r} exceeds per-file size limit"
-            )
+            raise UnmixError(f"File {entry.original_path!r} exceeds per-file size limit")
         total_bytes += size
         if total_bytes > max_total_bytes:
             raise UnmixError("Reconstructed content exceeds total-size limit")
 
-        target = check_existing_path_safety(
-            root, relative_path, input_resolved=input_resolved
-        )
+        target = check_existing_path_safety(root, relative_path, input_resolved=input_resolved)
         prepared.append(PreparedEntry(entry.original_path, relative_path, target, data))
 
     return prepared, skipped, total_bytes
@@ -585,19 +568,15 @@ def ensure_safe_parent_dirs(root: Path, relative_path: PurePosixPath) -> None:
         current = current / part
         if current.is_symlink():
             raise UnmixError(f"Symlink directory component is not allowed: {current}")
-        try:
+        with contextlib.suppress(FileExistsError):
             current.mkdir(mode=0o755)
-        except FileExistsError:
-            pass
         if current.is_symlink() or not current.is_dir():
             raise UnmixError(f"Unsafe or non-directory parent path: {current}")
         resolved = current.resolve(strict=True)
         try:
             resolved.relative_to(root)
         except ValueError as exc:
-            raise UnmixError(
-                f"Parent directory escaped output root: {current}"
-            ) from exc
+            raise UnmixError(f"Parent directory escaped output root: {current}") from exc
 
 
 def safe_write_file(root: Path, relative_path: PurePosixPath, data: bytes) -> None:
@@ -616,9 +595,7 @@ def safe_write_file(root: Path, relative_path: PurePosixPath, data: bytes) -> No
     nofollow = getattr(os, "O_NOFOLLOW", 0)
     binary = getattr(os, "O_BINARY", 0)
     try:
-        fd = os.open(
-            str(target), os.O_WRONLY | os.O_CREAT | os.O_EXCL | nofollow | binary, 0o644
-        )
+        fd = os.open(str(target), os.O_WRONLY | os.O_CREAT | os.O_EXCL | nofollow | binary, 0o644)
         with os.fdopen(fd, "wb") as handle:
             handle.write(data)
     except FileExistsError as exc:
@@ -635,9 +612,7 @@ def prepare_output_root(output_dir: str | os.PathLike[str], dry_run: bool) -> Pa
     return raw_root.resolve(strict=False)
 
 
-def read_input_file(
-    repomix_file: str | os.PathLike[str], max_input_bytes: int
-) -> tuple[Path, str]:
+def read_input_file(repomix_file: str | os.PathLike[str], max_input_bytes: int) -> tuple[Path, str]:
     input_path = Path(repomix_file).expanduser()
     if not input_path.exists():
         raise UnmixError(f"Input file not found: {input_path}")
@@ -750,7 +725,9 @@ def positive_float(value: str) -> float:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Reconstruct static files from Repomix exports without running or rewriting them"
+        description=(
+            "Reconstruct static files from Repomix exports without running or rewriting them"
+        )
     )
     parser.add_argument("repomix_file", help="Repomix Markdown/XML/JSON export")
     parser.add_argument(
@@ -759,19 +736,11 @@ def build_parser() -> argparse.ArgumentParser:
         default="./extracted",
         help="New output directory (default: ./extracted)",
     )
-    parser.add_argument(
-        "--dry-run", action="store_true", help="Validate without writing"
-    )
+    parser.add_argument("--dry-run", action="store_true", help="Validate without writing")
     parser.add_argument("--version", action="version", version=distribution_version())
-    parser.add_argument(
-        "--max-input-mib", type=positive_float, default=DEFAULT_MAX_INPUT_MIB
-    )
-    parser.add_argument(
-        "--max-file-mib", type=positive_float, default=DEFAULT_MAX_FILE_MIB
-    )
-    parser.add_argument(
-        "--max-total-mib", type=positive_float, default=DEFAULT_MAX_TOTAL_MIB
-    )
+    parser.add_argument("--max-input-mib", type=positive_float, default=DEFAULT_MAX_INPUT_MIB)
+    parser.add_argument("--max-file-mib", type=positive_float, default=DEFAULT_MAX_FILE_MIB)
+    parser.add_argument("--max-total-mib", type=positive_float, default=DEFAULT_MAX_TOTAL_MIB)
     parser.add_argument("--max-files", type=positive_int, default=DEFAULT_MAX_FILES)
     return parser
 
@@ -795,11 +764,7 @@ def main(argv: list[str] | None = None) -> int:
         f"Format: {result.format_type} | files: {len(result.extracted)} | "
         f"skipped: {len(result.skipped)} | bytes: {result.total_bytes}"
     )
-    print(
-        "Dry run: no output written"
-        if args.dry_run
-        else f"Output: {args.output_directory}"
-    )
+    print("Dry run: no output written" if args.dry_run else f"Output: {args.output_directory}")
     if result.skipped:
         print("Excluded by safety rules (path [category]):")
         for path in result.skipped:
