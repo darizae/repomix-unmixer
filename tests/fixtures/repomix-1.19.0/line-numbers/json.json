@@ -1,0 +1,24 @@
+{
+  "fileSummary": {
+    "generationHeader": "This file is a merged representation of the entire codebase, combined into a single document by Repomix.\nThe content has been processed where line numbers have been added.",
+    "purpose": "This file contains a packed representation of the entire repository's contents.\nIt is designed to be easily consumable by AI systems for analysis, code review,\nor other automated processes.",
+    "fileFormat": "The content is organized as follows:\n1. This summary section\n2. Repository information\n3. Directory structure\n4. Repository files, each consisting of:\n   - File path as a key\n   - Full contents of the file as the value",
+    "usageGuidelines": "- This file should be treated as read-only. Any changes should be made to the\n  original repository files, not this packed version.\n- When processing this file, use the file path to distinguish\n  between different files in the repository.\n- Be aware that this file may contain sensitive information. Handle it with\n  the same level of security as you would the original repository.",
+    "notes": "- Some files may have been excluded based on .gitignore rules and Repomix's configuration\n- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files\n- Files matching patterns in .gitignore are excluded\n- Files matching default ignore patterns are excluded\n- Line numbers have been added to the beginning of each line"
+  },
+  "directoryStructure": "docs/\n  ambiguous.md\nsrc/\n  deep/\n    nested/\n      file.txt\n  app.py\n  bom.txt\n  crlf.txt\n  empty.txt\n  fences.md\n  no-newline.txt\n  special.txt\n  unicode.txt\n  with space.txt\nREADME.md",
+  "files": {
+    "docs/ambiguous.md": "1: ## File: not-a-real-entry.txt\n2: ```text\n3: This line mimics a Repomix header and must stay inside the file.\n4: ```",
+    "src/deep/nested/file.txt": "1: deep content",
+    "src/app.py": "1: def add(a, b):\n2:     return a + b",
+    "src/bom.txt": "1: BOM-prefixed line",
+    "src/crlf.txt": "1: line one\r\n2: line two",
+    "src/empty.txt": "1: ",
+    "src/fences.md": " 1: Before fence.\n 2: \n 3: ```python\n 4: print(\"inner fence\")\n 5: ```\n 6: \n 7: ````\n 8: nested four-backtick example\n 9: ````\n10: \n11: After fence.",
+    "src/no-newline.txt": "1: no trailing newline",
+    "src/special.txt": "1: ampersand & less < greater > quote \" apostrophe '",
+    "src/unicode.txt": "1: unicode: café ☕ 日本語",
+    "src/with space.txt": "1: space in path",
+    "README.md": "1: # Fixture README\n2: \n3: Synthetic repository used to validate Repomix reconstruction."
+  }
+}

@@ -31,4 +31,4 @@ python3 scripts/reconstruct_all.py --dry-run
 python3 scripts/reconstruct_all.py
 ```
 
-After reconstruction, use **read-only file inspection**. Supported formats are Markdown, XML, and JSON; plain-text, line-numbered and some XML variants may not round-trip correctly. Report unsupported formats instead of guessing or executing recovered code. Read `SECURITY.md` for the current threat model.
+After reconstruction, use **read-only file inspection**. Supported formats are Markdown, XML (default and `--parsable-style`), and JSON. Line-numbered exports are rejected as lossy; plain-text exports are unsupported. Report unsupported formats instead of guessing or executing recovered code. Read `docs/PARSER_COMPATIBILITY.md` for fidelity limits and `SECURITY.md` for the current threat model.
