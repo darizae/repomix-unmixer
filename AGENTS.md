@@ -2,7 +2,7 @@
 
 ## First: understand the repository
 
-Read `README.md`, `SECURITY.md`, `docs/BACKLOG.md` and `docs/RELEASE_CHECKLIST.md` before working. `docs/BACKLOG.md` is the **single source of truth** for product decisions, task IDs, statuses and acceptance criteria. The repository belongs to the GitHub account **`darizae`** and its intended private remote is **`darizae/repomix-static-reconstructor`**.
+Read `README.md`, `SECURITY.md`, `docs/BACKLOG.md`, `docs/RELEASE_CHECKLIST.md` and `docs/STATIC_INSPECTION.md` before working. `docs/BACKLOG.md` is the **single source of truth** for product decisions, task IDs, statuses and acceptance criteria. The repository belongs to the GitHub account **`darizae`** and its private remote is **`darizae/repomix-static-reconstructor`** (initialized 2026-11-19; see `docs/AGENT_HANDOFF.md` for provenance).
 
 ### If GitHub has not yet been initialized
 
