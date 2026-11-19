@@ -13,7 +13,7 @@ See `docs/BACKLOG.md` for task IDs. GitHub target: `darizae/repomix-static-recon
 - [x] Repomix-generated fixtures for Markdown/XML/JSON across versions, CRLF/BOM, escapes, malformed content — P0-10: Repomix 1.19.0 fixtures, byte-identical with 1.17.0/1.18.1; see `docs/PARSER_COMPATIBILITY.md`
 - [ ] Define exactly what is preserved and what is intentionally excluded
 - [ ] Concurrent-filesystem threat model and symlink/race/hardlink audit
-- [ ] Linux/macOS/Windows integration tests and failure-injection tests
+- [x] Linux/macOS/Windows integration tests and failure-injection tests — P0-11: Added comprehensive adversarial tests covering permission failures, partial-write injection, resource limits, symlinks, invalid UTF-8, and cross-platform validation including macOS Bash 3.2 compatibility simulation
 - [ ] Check filesystem resource limits; test dry run's lack of writes
 
 ## Packaging and agent integrations
