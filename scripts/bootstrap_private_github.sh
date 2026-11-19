@@ -63,9 +63,10 @@ fi
 
 # Explicit allowlist. Never use `git add .` or `git add -A` during initial setup.
 allowed=(
-  .gitignore README.md AGENTS.md SKILL.md SECURITY.md pyproject.toml
+  .gitignore README.md AGENTS.md SECURITY.md pyproject.toml
   docs/AGENT_HANDOFF.md docs/BACKLOG.md docs/RELEASE_CHECKLIST.md
   scripts/bootstrap_private_github.sh
+  skills/repomix-static-reconstructor/SKILL.md
   src/repomix_static_reconstructor/__init__.py
   src/repomix_static_reconstructor/__main__.py
   src/repomix_static_reconstructor/batch.py
