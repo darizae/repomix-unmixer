@@ -91,7 +91,7 @@ Markdown file content containing `<repomix>` from being mistaken for XML.
 
 | Input | Behavior |
 |---|---|
-| `--output-show-line-numbers` | **Rejected.** Line-number prefixes are annotations, not file content. Detected from the export preamble and from per-file prefix patterns, including when `--no-file-summary` removes the preamble marker. |
+| `--output-show-line-numbers` | **Rejected.** Line-number prefixes are annotations, not file content. Detected from the export preamble and from per-file prefix patterns, including when `--no-file-summary` removes the preamble marker. A source file whose every line literally begins `1: `, `2: `, … can trigger the per-file heuristic as a false positive. |
 | Plain-text style (`--style plain`) | **Unsupported.** Format detection fails with an error. |
 | `--no-files` / no file entries | **Rejected** with "no file entries" rather than producing an empty tree. |
 | `--split-output` | Each numbered part is a partial export. Parsing one part reconstructs only the files in that part; combine parts only after verifying completeness. |
