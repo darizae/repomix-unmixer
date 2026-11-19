@@ -1,5 +1,7 @@
 # Release readiness checklist (not yet satisfied)
 
+**Execution spec:** [`RELEASE_EXECUTION_PLAN.md`](RELEASE_EXECUTION_PLAN.md). **Blocking:** filesystem/race and dry-run/resource review; rights/provenance; reproducible local build and install; truthful community security/conduct contacts; final approval. **Deferred:** GitHub Actions while quota exhausted, website/social/GIF, unused host integrations, and already accepted name/logo. Keep a deferred check unchecked, never claim it passed.
+
 See `docs/BACKLOG.md` for task IDs. GitHub remote: `darizae/repomix-unmixer` (**private**). Public visibility requires explicit maintainer approval.
 
 ## Repository hygiene
@@ -19,28 +21,28 @@ See `docs/BACKLOG.md` for task IDs. GitHub remote: `darizae/repomix-unmixer` (**
 - [ ] Check filesystem resource limits; test dry run's lack of writes
 
 ## Packaging and agent integrations
-- [ ] Define stable product name, CLI name, package name and repository slug; verify availability
+- [x] **repomix-unmixer** naming and repo/package/CLI identifiers accepted by maintainer (2026-11-19). No further naming review.
 - [x] Create `pyproject.toml`, `src/` layout, console entrypoint, version command, wheel/sdist — P0-13: setuptools src/ layout, `unmix-repomix`/`reconstruct-all` entry points, `--version`, wheel+sdist build with `twine check` PASSED
 - [x] Clean environment installation, uninstall, and pinned supported Python-version tests — P0-13/P0-14: clean-venv install (wheel and sdist), single-export + batch smoke, uninstall verified locally; CI matrix runs Python 3.10–3.13 on ubuntu/macos/windows with the full test suite
 - [x] Portable Agent Skill validates against the official specification (P0-15), including CI structure tests.
 - [ ] Execute host-specific installation smoke tests for Claude Code, Codex, Cursor, Gemini CLI and OpenCode (P1-08; deferred).
-- [ ] Only after validation, add targeted wrappers for Claude Code, Codex, Cursor, Gemini CLI, OpenCode
+- [ ] **Conditional, not mandatory:** add host wrappers only where real host testing proves portability insufficient.
 - [x] Document installation, offline operation, safety limits, parser coverage and FAQ; add agent setup prompt (P0-16/P1-03).
-- [ ] Record authentic terminal walkthrough GIF/capture and test README rendering (deferred).
+- [ ] **Deferred / non-blocking:** optional authentic demo capture and independent README rendering review; current README accepted.
 
 ## Brand / open-source polish
 - [x] Choose visual identity: name, tagline, color/type palette, icon/logo in SVG and PNG — P1-01/P1-02: initial repomix-unmixer identity, vector and raster assets; final clearance deferred
-- [ ] Verify logo/name aren't confusingly similar to Repomix or other brands; indicate independent project
+- [x] Maintainer accepted current name/logo; existing docs state independence from Repomix. This is product acceptance, **not a claim of trademark clearance**.
 - [x] README wordmark, concise feature set, CLI commands and safety links (P1-03).
-- [ ] Authentic demo GIF/capture and independent README visual review (deferred).
+- [ ] **Deferred / non-blocking:** optional demo GIF and visual README review; no duplicated release gate.
 - [x] Branded local documentation landing page, original social-card SVG and extraction diagram (P1-04).
-- [ ] Export hosted social-card PNG, upload GitHub preview and approve deployment (deferred).
-- [ ] Independent visual/accessibility check (responsive layout, dark/light wordmarks, alt text, contrast) on actual browser/device; source assets and semantic HTML are present (deferred).
+- [ ] **Deferred / non-blocking:** social-card PNG, GitHub preview upload and website deployment.
+- [ ] **Deferred / non-blocking:** independent device/browser accessibility check; existing responsive assets retained.
 
 ## Quality and publication
 - [x] CI quality gates: lint, types, tests across supported OS/Python versions, build/install checks — PR #8 completed successfully with all 14 jobs including Python 3.10 on Windows.
-- [ ] Dependabot or equivalent maintenance, dependabot alerts, optional release provenance
-- [ ] CONTRIBUTING, CODE_OF_CONDUCT decision, issue templates, PR template, CHANGELOG
-- [ ] Versioning strategy, release notes, checksums, tags and release artifacts
+- [ ] **Best-effort release prep:** lightweight dependency maintenance and supply-chain documentation; no GitHub Actions runs. Provenance automation optional.
+- [ ] **P1-10:** CHANGELOG, code of conduct with valid private contact, bug/feature issue forms, PR template, current CONTRIBUTING (release plan Phase B).
+- [ ] **P0-17:** local artifacts, v0.1.0 notes, checksums; release/tag only when blocking gates pass (release plan Phase E).
 - [ ] Test install instructions with a new contributor; obtain maintainer approval to make public
-- [ ] Optional distribution: PyPI, skills directory/marketplaces, docs/website after approval
+- [ ] **Prepare now:** verified PyPI metadata, Trusted Publisher configuration and Agent Skills distribution guide; **actual upload/listing gated**. Website remains deferred.
