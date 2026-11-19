@@ -45,3 +45,45 @@ packages = ["repomix_static_reconstructor"]
 
 [tool.setuptools.package-data]
 repomix_static_reconstructor = ["py.typed"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.ruff.lint]
+# Explicit selection, not default evolution: CI results stay stable across ruff
+# releases. Extend this list deliberately when adopting new rule families.
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # pyflakes
+    "I",      # isort
+    "B",      # flake8-bugbear
+    "UP",     # pyupgrade
+    "SIM",    # flake8-simplify
+    "RUF",    # ruff-specific
+    "PIE",    # flake8-pie
+    "PLW",    # pylint warnings
+    "EXE",    # flake8-executable
+]
+ignore = [
+    # Tests insert sys.path before package imports by design.
+    "E402",
+    # Deliberate: subprocess return codes are asserted by hand for diagnostics.
+    "PLW1510",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# package __init__ re-exports intentionally grouped by module of origin
+"src/repomix_static_reconstructor/__init__.py" = ["I001", "RUF022"]
+
+[tool.mypy]
+python_version = "3.10"
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+check_untyped_defs = true
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disable_error_code = ["no-untyped-def"]

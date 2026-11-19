@@ -11,6 +11,7 @@ Output is not guaranteed to be secret-free, runnable, or an exact Git backup.
 from __future__ import annotations
 
 import argparse
+import contextlib
 import json
 import math
 import os
@@ -21,10 +22,11 @@ from dataclasses import dataclass
 from pathlib import Path, PurePosixPath, PureWindowsPath
 
 try:  # Package metadata is unavailable when running as a loose script.
-    from importlib.metadata import PackageNotFoundError, version as _package_version
+    from importlib.metadata import PackageNotFoundError
+    from importlib.metadata import version as _package_version
 except ImportError:  # pragma: no cover - Python < 3.10 only
-    _package_version = None
     PackageNotFoundError = Exception  # type: ignore[assignment, misc]
+    _package_version = None  # type: ignore[assignment]
 
 
 def distribution_version() -> str:
@@ -142,7 +144,7 @@ def strip_one_line_ending(text: str) -> str:
     """Remove exactly one delimiter newline before a closing Repomix fence/tag."""
     if text.endswith("\r\n"):
         return text[:-2]
-    if text.endswith("\n") or text.endswith("\r"):
+    if text.endswith(("\n", "\r")):
         return text[:-1]
     return text
 
@@ -151,7 +153,7 @@ def strip_one_leading_line_ending(text: str) -> str:
     """Remove exactly one structural newline after a default-style XML tag."""
     if text.startswith("\r\n"):
         return text[2:]
-    if text.startswith("\n") or text.startswith("\r"):
+    if text.startswith(("\n", "\r")):
         return text[1:]
     return text
 
@@ -451,13 +453,15 @@ def normalize_archive_path(file_path: str) -> PurePosixPath:
         )
 
     for part in raw_parts:
-        if ":" in part:
-            # Enhanced colon validation for Windows alternate data streams
-            if ":" in part and part != ":":
-                # Allow paths like "C:/path" to be normalized to "C/path" 
-                # but reject actual ADS like "file.txt:$DATA"
-                if part.count(":") > 1 or (part.count(":") == 1 and "$" in part.upper()):
-                    raise UnmixError(f"Windows alternate data stream not allowed: {file_path!r}")
+        # Enhanced colon validation for Windows alternate data streams.
+        # Allow paths like "C:/path" to be normalized to "C/path",
+        # but reject actual ADS like "file.txt:$DATA".
+        if (
+            ":" in part
+            and part != ":"
+            and (part.count(":") > 1 or (part.count(":") == 1 and "$" in part.upper()))
+        ):
+            raise UnmixError(f"Windows alternate data stream not allowed: {file_path!r}")
 
     return PurePosixPath(*raw_parts)
 
@@ -470,7 +474,6 @@ def ensure_within_root(root: Path, candidate: Path, description: str) -> Path:
         return resolved
     except ValueError as exc:
         raise UnmixError(f"{description} escapes output directory: {candidate}") from exc
-    return resolved
 
 
 def check_existing_path_safety(
@@ -502,10 +505,10 @@ def check_existing_path_safety(
             raise UnmixError(f"Refusing to overwrite the Repomix input file itself: {target}")
         raise UnmixError(f"Destination file already exists: {target}")
 
-    
-    # Additional hardlink detection
-    if target.exists() and target.stat().st_nlink > 1:
-        raise UnmixError(f"Refusing to write to hardlinked file: {target}")
+    # Hardlinked destinations are covered by the target.exists() rejection
+    # above: a hardlink to an existing file makes the destination exist, so
+    # the fresh-output invariant refuses it before content is written.
+    return target
 
 
 def preflight_entries(
@@ -537,10 +540,7 @@ def preflight_entries(
         # collisions and file/parent-directory conflicts.
         path_key = relative_path.as_posix().casefold()
         parts = relative_path.parts
-        parent_keys = {
-            "/".join(parts[:index]).casefold()
-            for index in range(1, len(parts))
-        }
+        parent_keys = {"/".join(parts[:index]).casefold() for index in range(1, len(parts))}
         if path_key in seen or path_key in required_directories:
             raise UnmixError(f"Duplicate path or file/directory conflict: {entry.original_path!r}")
         if seen.intersection(parent_keys):
@@ -568,10 +568,8 @@ def ensure_safe_parent_dirs(root: Path, relative_path: PurePosixPath) -> None:
         current = current / part
         if current.is_symlink():
             raise UnmixError(f"Symlink directory component is not allowed: {current}")
-        try:
+        with contextlib.suppress(FileExistsError):
             current.mkdir(mode=0o755)
-        except FileExistsError:
-            pass
         if current.is_symlink() or not current.is_dir():
             raise UnmixError(f"Unsafe or non-directory parent path: {current}")
         resolved = current.resolve(strict=True)
@@ -590,7 +588,7 @@ def safe_write_file(root: Path, relative_path: PurePosixPath, data: bytes) -> No
     # Additional hardlink detection for target file
     if target.exists() and target.stat().st_nlink > 1:
         raise UnmixError(f"Refusing to write to hardlinked file: {target}")
-    
+
     # Create-only: there is no overwrite mode. O_EXCL prevents replacing an
     # existing file (but adversarial concurrent filesystem mutation still needs
     # dedicated review; see BACKLOG.md).
@@ -623,7 +621,9 @@ def read_input_file(repomix_file: str | os.PathLike[str], max_input_bytes: int) 
 
     size = input_path.stat().st_size
     if size > max_input_bytes:
-        raise UnmixError(f"Input file is {size} bytes, exceeding input limit of {max_input_bytes} bytes")
+        raise UnmixError(
+            f"Input file is {size} bytes, exceeding input limit of {max_input_bytes} bytes"
+        )
 
     try:
         # utf-8-sig accepts an optional export BOM without leaking U+FEFF into
@@ -655,14 +655,20 @@ def unmix_repomix(
     entries = parse_repomix(content, format_type)
     root = prepare_output_root(output_dir, dry_run=dry_run)
     prepared, skipped, total_bytes = preflight_entries(
-        entries, root, input_resolved,
+        entries,
+        root,
+        input_resolved,
         max_files=max_files,
         max_file_bytes=max_file_bytes,
         max_total_bytes=max_total_bytes,
     )
     if dry_run:
-        return UnmixResult(format_type, tuple(x.relative_path.as_posix() for x in prepared),
-                           tuple(skipped), total_bytes)
+        return UnmixResult(
+            format_type,
+            tuple(x.relative_path.as_posix() for x in prepared),
+            tuple(skipped),
+            total_bytes,
+        )
 
     # Stage a complete output in a fresh temporary sibling; failed writes
     # leave no partial final output. The destination must remain absent.
@@ -675,6 +681,7 @@ def unmix_repomix(
         raise UnmixError(f"Output appeared after preflight: {root}")
     # Create staging directory with restricted permissions
     import stat
+
     staging = Path(tempfile.mkdtemp(prefix=f".{root.name}.tmp-", dir=root.parent))
     # Set restrictive permissions (700) for staging directory
     staging.chmod(stat.S_IRWXU)
@@ -694,8 +701,12 @@ def unmix_repomix(
             shutil.rmtree(staging)
         raise
 
-    return UnmixResult(format_type, tuple(x.relative_path.as_posix() for x in prepared),
-                       tuple(skipped), total_bytes)
+    return UnmixResult(
+        format_type,
+        tuple(x.relative_path.as_posix() for x in prepared),
+        tuple(skipped),
+        total_bytes,
+    )
 
 
 def positive_int(value: str) -> int:
@@ -714,11 +725,17 @@ def positive_float(value: str) -> float:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Reconstruct static files from Repomix exports without running or rewriting them"
+        description=(
+            "Reconstruct static files from Repomix exports without running or rewriting them"
+        )
     )
     parser.add_argument("repomix_file", help="Repomix Markdown/XML/JSON export")
-    parser.add_argument("output_directory", nargs="?", default="./extracted",
-                        help="New output directory (default: ./extracted)")
+    parser.add_argument(
+        "output_directory",
+        nargs="?",
+        default="./extracted",
+        help="New output directory (default: ./extracted)",
+    )
     parser.add_argument("--dry-run", action="store_true", help="Validate without writing")
     parser.add_argument("--version", action="version", version=distribution_version())
     parser.add_argument("--max-input-mib", type=positive_float, default=DEFAULT_MAX_INPUT_MIB)
@@ -732,7 +749,8 @@ def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
         result = unmix_repomix(
-            args.repomix_file, args.output_directory,
+            args.repomix_file,
+            args.output_directory,
             dry_run=args.dry_run,
             max_input_bytes=mib_to_bytes(args.max_input_mib),
             max_file_bytes=mib_to_bytes(args.max_file_mib),
@@ -742,8 +760,10 @@ def main(argv: list[str] | None = None) -> int:
     except UnmixError as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
-    print(f"Format: {result.format_type} | files: {len(result.extracted)} | "
-          f"skipped: {len(result.skipped)} | bytes: {result.total_bytes}")
+    print(
+        f"Format: {result.format_type} | files: {len(result.extracted)} | "
+        f"skipped: {len(result.skipped)} | bytes: {result.total_bytes}"
+    )
     print("Dry run: no output written" if args.dry_run else f"Output: {args.output_directory}")
     if result.skipped:
         print("Excluded by safety rules (path [category]):")
