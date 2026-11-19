@@ -7,7 +7,7 @@ This software reconstructs **untrusted text**. **It is not a sandbox**, a malwar
 - Offline and extraction-only: no network calls, shell, recovered-code execution, dependency resolution or container startup.
 - Path validation rejects absolute, `..`, empty, Windows drive/UNC/ADS and Windows reserved device-name components.
 - Preflight rejects duplicates, case-insensitive output collisions and file-versus-directory conflicts; applies file count and byte limits.
-- A small generic file *exclusion* list avoids placing `.mcp.json`, `.env` variants, `.claude/`, `.cursor/`, `.git/`, local IDE metadata, etc. into output. This list is not comprehensive; never rely on it to remove secrets.
+- A small, documented file *exclusion* policy omits auto-activating agent/IDE configuration (`.mcp.json`, `.claude/`, `.codex/`, `.cursor/`, `.gemini/`, `.opencode/`, `.idea/`, `.vscode/`), credential-bearing environment files (`.env` and `.env.*` except plain templates, `.envrc`), `.git/`, and `.DS_Store` from reconstructed output. Exact rules, matching semantics, and explicit non-exclusions are in [`docs/EXCLUSIONS.md`](docs/EXCLUSIONS.md). This list is not comprehensive; never rely on it to remove secrets.
 - Fresh-output-only workflow, exclusive file creation, no recursive replacement of existing target trees. Staged writes reduce partial outputs when extraction fails.
 
 ## Important unfinished security work
@@ -16,6 +16,6 @@ No completed independent adversarial security review. Directory traversal throug
 
 ## Output and privacy
 
-File contents and paths are intentionally unchanged except for handling Repomix encoding, delimiters and skipped files. They may contain credentials or private IPs. File exclusions do not establish whether retained files are confidential. `repomix-files/` and `reconstructed/` are ignored by Git, but `.gitignore` does not remove already-tracked files. Before any private push, stage only expected files and inspect the staged diff; before a public release, perform a full history, secrets, and ownership review.
+File contents and paths are intentionally unchanged except for handling Repomix encoding, delimiters and skipped files. They may contain credentials or private IPs. File exclusions affect only reconstructed output and do not establish whether retained files are confidential; the original export still contains excluded paths. See [`docs/EXCLUSIONS.md`](docs/EXCLUSIONS.md) for the exact policy and explicit non-exclusions. `repomix-files/` and `reconstructed/` are ignored by Git, but `.gitignore` does not remove already-tracked files. Before any private push, stage only expected files and inspect the staged diff; before a public release, perform a full history, secrets, and ownership review.
 
 Please use the eventual repository's private security-reporting mechanism when configured; until then report findings privately to the maintainer. The public contact address is not yet selected.
