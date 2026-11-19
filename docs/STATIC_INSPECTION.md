@@ -71,5 +71,5 @@ look read-only:
 ## Reporting
 
 Found a safety issue in the extractor itself? See
-[`SECURITY.md`](SECURITY.md) for the reporting channel. Do not open a public
+[`SECURITY.md`](../SECURITY.md) for the reporting channel. Do not open a public
 issue with proof-of-concept details for anything that could help attackers.
