@@ -106,3 +106,7 @@ Read [Security](SECURITY.md), [static inspection](docs/STATIC_INSPECTION.md), [p
 [Docs preview](docs/site/README.md) · [FAQ](docs/FAQ.md) · [Agent Skill](skills/repomix-unmixer/SKILL.md) · [Contributing](CONTRIBUTING.md) · [Backlog](docs/BACKLOG.md) · [Release checklist](docs/RELEASE_CHECKLIST.md)
 
 **Status:** v0.1.0 published — available on [PyPI](https://pypi.org/project/repomix-unmixer/), [MIT-licensed](LICENSE), with an [Agent Skill](https://www.agentskills.in/marketplace?author=darizae) indexed in the Agent Skills marketplace.
+
+## Agent-assisted setup
+
+[Open the agent setup page](https://darizae.github.io/repomix-unmixer/) or [copy the plain-text prompt](docs/agent-setup.txt) into your coding agent. Review its proposed changes and verification results.
